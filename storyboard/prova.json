@@ -1,0 +1,11 @@
+{
+  "lingua": "en",
+  "genere": "m",
+  "colore": "#E8743B",
+  "scene": [
+    {"titolo": "Claude made this video", "frase": "This whole video was made by Claude. The script, the 3D world, the captions and this voice."},
+    {"titolo": "No editing software", "frase": "No editing software, no animation skills, and no paid video model."},
+    {"titolo": "Free cloud render", "frase": "It was rendered for free on a cloud computer, while my laptop was doing nothing."},
+    {"titolo": "Want the setup?", "frase": "Comment the word blocks and I will show you exactly how it works."}
+  ]
+}

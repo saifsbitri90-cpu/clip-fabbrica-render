@@ -1,0 +1,22 @@
+{
+  "name": "clip-fabbrica-render",
+  "private": true,
+  "description": "Video animati in 3D a blocchi per la fabbrica di clip: Remotion + three.js, render su GitHub Actions",
+  "scripts": {
+    "render": "remotion render src/index.ts Voxel out/video.mp4 --gl=swangle --props=public/props.json"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.1.2",
+    "@remotion/cli": "4.0.529",
+    "@remotion/three": "4.0.529",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.529",
+    "three": "0.175.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.2",
+    "@types/three": "0.175.0",
+    "typescript": "5.8.3"
+  }
+}
