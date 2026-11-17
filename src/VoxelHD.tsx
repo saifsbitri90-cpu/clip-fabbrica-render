@@ -155,14 +155,21 @@ const Palco: React.FC<{ t: number }> = ({ t }) => {
 };
 
 type Inq = { pos: THREE.Vector3; look: THREE.Vector3; fov: number };
-const POSIZIONI = { claude: 1.05, tu: -1.05 } as Record<string, number>;
+// In verticale l'angolo orizzontale e' stretto (fov 36 -> circa 21 gradi in larghezza): i due
+// personaggi stanno vicini e la ripresa larga sta lontana. Claude e' piu' basso di "tu":
+// ogni personaggio ha la sua altezza degli occhi e del busto (correzione del 17/11, v2 tagliava).
+const POSIZIONI = { claude: 0.8, tu: -0.8 } as Record<string, number>;
+const OCCHI = { claude: 0.92, tu: 2.08 } as Record<string, number>;
+const BUSTO = { claude: 0.75, tu: 1.35 } as Record<string, number>;
 
 function inquadratura(s: ScenaHD | undefined): Inq {
-  const x = s ? (POSIZIONI[s.chi] ?? 0) : 0;
+  const chi = s?.chi ?? "tu";
+  const x = POSIZIONI[chi] ?? 0;
   const tipo = s?.inquadratura ?? "medio";
-  if (tipo === "largo") return { pos: new THREE.Vector3(0, 2.2, 7.2), look: new THREE.Vector3(0, 1.1, 0), fov: 42 };
-  if (tipo === "primo") return { pos: new THREE.Vector3(x * 0.8, 1.75, 3.0), look: new THREE.Vector3(x, 1.45, 0), fov: 38 };
-  return { pos: new THREE.Vector3(x * 0.6, 1.9, 4.6), look: new THREE.Vector3(x * 0.7, 1.25, 0), fov: 40 };
+  if (tipo === "largo") return { pos: new THREE.Vector3(0, 1.9, 9.0), look: new THREE.Vector3(0, 1.0, 0), fov: 38 };
+  if (tipo === "primo") return { pos: new THREE.Vector3(x * 0.7, OCCHI[chi] + 0.12, chi === "claude" ? 3.0 : 3.4),
+    look: new THREE.Vector3(x, OCCHI[chi] - 0.08, 0), fov: 34 };
+  return { pos: new THREE.Vector3(x * 0.5, BUSTO[chi] + 0.45, 5.6), look: new THREE.Vector3(x, BUSTO[chi] + 0.15, 0), fov: 36 };
 }
 
 const Telecamera: React.FC<{ scene: ScenaHD[]; t: number; fps: number }> = ({ scene, t, fps }) => {
