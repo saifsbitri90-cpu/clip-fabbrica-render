@@ -1,0 +1,13 @@
+{
+  "lingua": "en",
+  "etichetta": "Claude made this",
+  "evidenzia": ["claude", "free", "minutes", "everything", "blocks"],
+  "scene": [
+    {"chi": "tu", "inquadratura": "largo", "frase": "Claude, can you really make a whole video by yourself?"},
+    {"chi": "claude", "inquadratura": "primo", "frase": "Watch me. Script, 3D world, voices and captions. Everything is code."},
+    {"chi": "tu", "inquadratura": "medio", "frase": "And how much did it cost?"},
+    {"chi": "claude", "inquadratura": "primo", "card": {"titolo": "RENDER COST", "valore": "$0"}, "frase": "Zero. It rendered for free in the cloud, in a few minutes."},
+    {"chi": "tu", "inquadratura": "medio", "frase": "Okay, I need this. How do I start?"},
+    {"chi": "claude", "inquadratura": "largo", "frase": "Comment blocks and I will show you the setup."}
+  ]
+}
