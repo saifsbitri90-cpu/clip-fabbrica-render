@@ -167,7 +167,8 @@ function inquadratura(s: ScenaHD | undefined): Inq {
   const x = POSIZIONI[chi] ?? 0;
   const tipo = s?.inquadratura ?? "medio";
   if (tipo === "largo") return { pos: new THREE.Vector3(0, 1.9, 9.0), look: new THREE.Vector3(0, 1.0, 0), fov: 38 };
-  if (tipo === "primo") return { pos: new THREE.Vector3(x * 0.7, OCCHI[chi] + 0.12, chi === "claude" ? 3.0 : 3.4),
+  // primo piano: Claude e' largo 1,25 e a fov 34 in verticale serve stare a 5 per vederlo intero (v3 lo tagliava)
+  if (tipo === "primo") return { pos: new THREE.Vector3(x * 0.7, OCCHI[chi] + 0.12, chi === "claude" ? 5.0 : 3.8),
     look: new THREE.Vector3(x, OCCHI[chi] - 0.08, 0), fov: 34 };
   return { pos: new THREE.Vector3(x * 0.5, BUSTO[chi] + 0.45, 5.6), look: new THREE.Vector3(x, BUSTO[chi] + 0.15, 0), fov: 36 };
 }
@@ -245,7 +246,7 @@ export const VoxelHD: React.FC<PropsVoxelHD> = ({ parole, scene, etichetta, audi
         color: "#fff", textTransform: "uppercase", WebkitTextStroke: "10px #000", paintOrder: "stroke fill", padding: "0 50px" }}>
         {gruppo.map((p, k) => {
           const pulita = p.w.toLowerCase().replace(/[^a-zà-ù0-9]/g, "");
-          const colore = g0 + k === i ? (chiave.has(pulita) ? "#FFD400" : "#FFFFFF") : "rgba(255,255,255,.55)";
+          const colore = chiave.has(pulita) ? "#FFD400" : "#FFFFFF"; // tutte bianche, le parole chiave gialle
           const sc = g0 + k === i ? interpolate(t - p.t, [0, 0.08], [1.18, 1], { extrapolateRight: "clamp" }) : 1;
           return <span key={k} style={{ color: colore, display: "inline-block", margin: "0 14px", transform: `scale(${sc})` }}>{p.w}</span>;
         })}
