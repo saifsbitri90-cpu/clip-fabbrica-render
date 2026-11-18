@@ -44,7 +44,7 @@ export function angoli(posa: Posa, t: number, tl: number): Angoli {
     case "cammina": {
       const ph = (TAU * t) / 1.05;
       return { ...a, busto: 4, cA: 24 * Math.sin(ph), cP: -24 * Math.sin(ph), kA: -38 * Math.max(0, Math.cos(ph)),
-        kP: -38 * Math.max(0, -Math.cos(ph)), bA: -20 * Math.sin(ph), bP: 20 * Math.sin(ph), gA: 16, gP: 16, dx: 70 * tl };
+        kP: -38 * Math.max(0, -Math.cos(ph)), bA: -20 * Math.sin(ph), bP: 20 * Math.sin(ph), gA: 16, gP: 16, dx: Math.min(70 * tl, 120) };
     }
     case "corre": {
       const ph = (TAU * t) / 0.56;

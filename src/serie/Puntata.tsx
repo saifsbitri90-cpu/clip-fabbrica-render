@@ -17,7 +17,7 @@ const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
 type Quadro = "largo" | "medio" | "primo";
 type Ripresa = { da: number; a: number; quadro: Quadro; fuoco: number };
-type Attore = { p: Personaggio; posa: Posa; espr: Scena["personaggi"][number]["espressione"]; x: number; verso: 1 | -1; seme: number };
+type Attore = { p: Personaggio; posa: Posa; espr: Scena["personaggi"][number]["espressione"]; x: number; verso: 1 | -1; seme: number; tl: number };
 
 /** un taglio a ogni pezzo di frase, alternando due inquadrature; mai riprese più corte di 0,75 s */
 function riprese(s: Scena, nAttori: number): Ripresa[] {
@@ -46,12 +46,12 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
   else if (r.quadro === "medio") {
     scala = 1.72 * spinta;
     fx = attori.length > 1 && r.fuoco === 0 ? attori.reduce((n, a) => n + a.x, 0) / attori.length : f.x;
-    fy = TERRA - 320 + abbassa(f.posa, tl) * 0.6 + deriva * 8 * k;
+    fy = TERRA - 320 + abbassa(f.posa, f.tl) * 0.6 + deriva * 8 * k;
   } else {
     scala = 2.9 * spinta;
     const altezza = (f.p.stile.altezza ?? 1);
     fx = f.x + f.verso * 18 + deriva * 6 * k;
-    fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, tl) + 48;
+    fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 48;
   }
   fx = Math.min(Math.max(fx, 540 / scala), 1080 - 540 / scala); // mai fuori dal mondo
   const bgScala = (1 + (scala - 1) * 0.3) * (corre ? 1.18 : 1);
@@ -97,15 +97,19 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
   const tl = t - s.da;
   const cast = new Map(props.personaggi.map((p) => [p.id, p]));
   const vv = versi(s);
+  const prima = scene[scene.indexOf(s) - 1];
+  const giaCaduto = (id: string) => !!prima?.personaggi.some((q) => q.id === id && q.posa === "cade");
   const attori: Attore[] = s.personaggi.flatMap((pr, i) => {
     const p = cast.get(pr.id);
-    return p ? [{ p, posa: pr.posa, espr: pr.espressione, x: XPOS[pr.posizione] ?? 540, verso: vv[i], seme: i + s.n }] : [];
+    const tlA = pr.posa === "cade" && giaCaduto(pr.id) ? tl + 3 : tl; // resta a terra, non ricade
+    return p ? [{ p, posa: pr.posa, espr: pr.espressione, x: XPOS[pr.posizione] ?? 540, verso: vv[i], seme: i + s.n, tl: tlA }] : [];
   });
   const lista = riprese(s, attori.length);
   const r = lista.find((x) => t >= x.da && t < x.a) ?? lista[lista.length - 1];
   const corre = attori.some((a) => a.posa === "corre");
   const { ch, bg } = camere(r, attori, t, tl, corre);
   const tipo = s.cartello?.tipo;
+  const tlc = s === scene[0] ? tl - 2.5 : tl; // nella prima scena il cartello entra dopo il badge grande
   const lavagna = s.inquadratura === "dall_alto" || tipo === "lavagna";
   const scelta = tipo === "scelta" || t >= props.scelta.da;
   const pezzo = s.pezzi.find((p) => t >= p.da && t < p.a) ?? (t < s.pezzi[0]?.da ? undefined : s.pezzi[s.pezzi.length - 1]);
@@ -129,7 +133,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
         })}
         {attori.map((a, i) => (
           <g key={i} transform={`translate(${a.x} ${TERRA}) scale(${a.verso * (a.p.stile.altezza ?? 1)} ${a.p.stile.altezza ?? 1})`}>
-            <Omino p={a.p} posa={a.posa} espr={a.espr} t={t} tl={tl} seme={a.seme} verso={a.verso} />
+            <Omino p={a.p} posa={a.posa} espr={a.espr} t={t} tl={a.tl} seme={a.seme} verso={a.verso} />
           </g>
         ))}
         {calciatore && (() => {
@@ -158,10 +162,10 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
         {notifica && <div style={{ position: "absolute", inset: 0, background: "rgba(8,10,14,.35)" }} />}
       </>)}
 
-      {tipo === "contatore" && s.cartello && <Contatore testo={s.cartello.testo} valore={s.cartello.valore} tl={tl} fps={fps} />}
-      {tipo === "tabellone" && s.cartello && <Tabellone testo={s.cartello.testo} valore={s.cartello.valore} tl={tl} fps={fps} />}
-      {tipo === "notifica" && s.cartello && <Notifica testo={s.cartello.testo} valore={s.cartello.valore} tl={tl} fps={fps} pelle={tu?.colori.pelle ?? "#C68B62"} />}
-      {tipo === "nome" && s.cartello && <NomeTag testo={s.cartello.testo} valore={s.cartello.valore} tl={tl} fps={fps} />}
+      {tipo === "contatore" && s.cartello && <Contatore testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
+      {tipo === "tabellone" && s.cartello && <Tabellone testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
+      {tipo === "notifica" && s.cartello && <Notifica testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} pelle={tu?.colori.pelle ?? "#C68B62"} />}
+      {tipo === "nome" && s.cartello && <NomeTag testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
       {tipo === "badge" && s.cartello && s.n > 1 && <BadgeScena testo={s.cartello.testo || s.cartello.valore} tl={tl} fps={fps} />}
 
       {scelta
@@ -186,7 +190,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
         return (
           <React.Fragment key={i}>
             {i > 0 && <Sequence from={Math.max(0, da - 3)} durationInFrames={20} layout="none"><Audio src={staticFile("suoni/whoosh.mp3")} volume={0.16} /></Sequence>}
-            {x.cartello && x.cartello.tipo !== "scelta" && <Sequence from={da + 3} durationInFrames={15} layout="none"><Audio src={staticFile("suoni/pop.mp3")} volume={0.3} /></Sequence>}
+            {x.cartello && x.cartello.tipo !== "scelta" && <Sequence from={da + (i === 0 ? Math.round(2.5 * fps) : 3)} durationInFrames={15} layout="none"><Audio src={staticFile("suoni/pop.mp3")} volume={0.3} /></Sequence>}
             {(stadio || x.suono === "folla") && x.suono !== "silenzio" && (
               <Sequence from={da} durationInFrames={lungo} layout="none"><Audio src={staticFile("suoni/folla.mp3")} loop volume={x.suono === "folla" ? 0.32 : 0.12} /></Sequence>
             )}

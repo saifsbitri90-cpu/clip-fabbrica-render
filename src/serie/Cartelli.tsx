@@ -20,7 +20,7 @@ export const Badge: React.FC<{ testo: string; t: number; fps: number }> = ({ tes
   const entra = molla(t, fps, 0.05);
   if (m < 1) {
     return (
-      <div style={{ position: "absolute", left: 0, right: 0, top: interpolate(m, [0, 1], [430, 250]), display: "flex", flexDirection: "column",
+      <div style={{ position: "absolute", left: 0, right: 0, top: interpolate(m, [0, 1], [270, 250]), display: "flex", flexDirection: "column",
         alignItems: "center", gap: 6, transform: `scale(${interpolate(m, [0, 1], [1, 0.5]) * entra})`, opacity: 1 - m }}>
         {titolo && <div style={{ background: ROSSO, color: "#fff", fontFamily: OSWALD, fontWeight: 700, fontSize: 52, letterSpacing: 3,
           padding: "8px 26px", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,.35)" }}>{titolo}</div>}
