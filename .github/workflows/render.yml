@@ -54,13 +54,10 @@ jobs:
             -preset slow -pix_fmt yuv420p -af "loudnorm=I=-14:TP=-1.5:LRA=11" -c:a aac -b:a 192k -ar 48000 \
             -movflags +faststart out/video.mp4
           echo "RENDER_SECONDI=$(( $(date +%s) - start ))" >> "$GITHUB_STEP_SUMMARY"
-          # foglio dei fotogrammi: si guarda PRIMA di mandare il video a Saif
-          npx remotion ffmpeg -y -i out/video.mp4 -vf "fps=1.5,scale=216:-2,tile=10x8" -frames:v 1 out/foglio.jpg
           ls -la out/
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: video
-          path: |
-            out/video.mp4
-            out/foglio.jpg
+          path: out/video.mp4
           retention-days: 3
