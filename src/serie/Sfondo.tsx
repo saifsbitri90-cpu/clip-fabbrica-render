@@ -106,16 +106,19 @@ export const Sfondo: React.FC<{ luogo: Luogo | undefined; cam: Camera }> = ({ lu
       <div style={{
         position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transformOrigin: "0 0",
         transform: `translate(${540 + cam.panX}px, 960px) scale(${cam.scala}) translate(${-cam.fx}px, ${-cam.fy}px)`,
-        filter: cam.blur > 0.3 ? `blur(${cam.blur}px)` : undefined,
+        // con l'illustrazione si usa la copia gia' sfocata (fatta una volta con ffmpeg): il blur del browser
+        // a ogni fotogramma rallentava il render; il filtro resta solo per i fondali disegnati in codice
+        filter: cam.blur > 0.3 && !luogo?.img ? `blur(${cam.blur}px)` : undefined,
       }}>
         {luogo?.img
-          ? <Img src={staticFile(luogo.img)} style={{ position: "absolute", left: -420, top: 0, width: 1920, height: 1920, objectFit: "cover" }} />
+          ? <Img src={staticFile(cam.blur > 0.3 && luogo.sfocata ? luogo.sfocata : luogo.img)}
+              style={{ position: "absolute", left: -420, top: 0, width: 1920, height: 1920, objectFit: "cover" }} />
           : <Dipinto />}
       </div>
       {/* nebbia bassa, vignetta, grana */}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,14,20,.28) 0%, rgba(10,14,20,0) 22%, rgba(10,14,20,0) 58%, rgba(10,14,20,.38) 100%)" }} />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0) 52%, rgba(0,0,0,.42) 100%)" }} />
-      <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${staticFile("serie/grana.png")})`, backgroundSize: "256px 256px", opacity: 0.05 }} />
+      {/* grana tolta il 18/11: quasi invisibile e uno dei livelli che rallentavano il render */}
     </div>
   );
 };

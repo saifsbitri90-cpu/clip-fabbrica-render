@@ -46,6 +46,19 @@ export function angoli(posa: Posa, t: number, tl: number): Angoli {
       return { ...a, busto: 4, cA: 24 * Math.sin(ph), cP: -24 * Math.sin(ph), kA: -38 * Math.max(0, Math.cos(ph)),
         kP: -38 * Math.max(0, -Math.cos(ph)), bA: -20 * Math.sin(ph), bP: 20 * Math.sin(ph), gA: 16, gP: 16, dx: Math.min(70 * tl, 120) };
     }
+    case "zoppica": {
+      // passo lento e storto: la gamba davanti (quella ferita) si piega poco e il corpo ci cade sopra
+      const ph = (TAU * t) / 1.35;
+      const appoggio = Math.max(0, Math.sin(ph)); // quando carica la gamba ferita
+      return { ...a, busto: 8 + 6 * appoggio, testa: 10, cA: 14 * Math.sin(ph), cP: -26 * Math.sin(ph), kA: -6,
+        kP: -42 * Math.max(0, -Math.cos(ph)), bA: 30 + 10 * appoggio, gA: 70, bP: -10 * Math.sin(ph), gP: 14,
+        dx: Math.min(45 * tl, 90) };
+    }
+    case "a_terra": {
+      // gia' a terra, si tiene il ginocchio e dondola dal dolore
+      const d = Math.sin((TAU * t) / 1.1);
+      return { ...a, anca: -44, busto: -14 + 4 * d, testa: 12 + 3 * d, cA: 76, kA: -100, cP: 86, kP: -6, bA: 64 + 3 * d, gA: 46, bP: -26, gP: 18 };
+    }
     case "corre": {
       const ph = (TAU * t) / 0.56;
       return { ...a, busto: 14, testa: -4, cA: 42 * Math.sin(ph), cP: -42 * Math.sin(ph),
@@ -152,7 +165,7 @@ const Capelli: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto:
 const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number }> = ({ e, bocca, aperti }) => {
   const occhio = "#1C1613";
   const grandi = e === "sorpresa" || e === "spaventata";
-  const ry = (grandi ? 7 : 5.6) * aperti;
+  const ry = (grandi ? 7 : 5.6) * aperti * (e === "dolore" ? 0.25 : e === "determinata" ? 0.7 : 1);
   // sopracciglia: [x1, y1, x2, y2] per sinistra e destra (x cresce verso il naso a destra)
   const s: Record<Espressione, [number[], number[]]> = {
     neutra: [[2, -20, 16, -21], [28, -21, 42, -20]],
@@ -162,6 +175,8 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number }> = ({ e
     sorpresa: [[2, -30, 16, -32], [28, -32, 42, -30]],
     spaventata: [[2, -24, 16, -32], [28, -32, 42, -24]],
     sprezzante: [[2, -19, 16, -18], [28, -30, 42, -28]],
+    dolore: [[2, -16, 16, -28], [28, -28, 42, -16]],
+    determinata: [[2, -22, 17, -17], [27, -17, 42, -22]],
   };
   const [b1, b2] = s[e];
   const bocche: Record<Espressione, React.ReactNode> = {
@@ -172,6 +187,8 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number }> = ({ e
     sorpresa: <ellipse cx="24" cy="29" rx="6" ry="8" fill="#5A2620" stroke="none" />,
     spaventata: <path d="M 13 29 Q 18 24 23 29 T 34 29" />,
     sprezzante: <path d="M 14 29 Q 27 31 37 20" />,
+    dolore: <g><rect x="12" y="22" width="26" height="12" rx="4" fill="#F4F1EA" stroke="#5A2620" strokeWidth={4} /><line x1="12" y1="28" x2="38" y2="28" /></g>,
+    determinata: <path d="M 15 28 L 34 28" strokeWidth={6} />,
   };
   return (
     <g>

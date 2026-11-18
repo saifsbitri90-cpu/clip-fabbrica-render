@@ -34,7 +34,7 @@ function riprese(s: Scena, nAttori: number): Ripresa[] {
 }
 
 /** quanto si abbassa la testa rispetto all'in piedi */
-const abbassa = (posa: Posa, tl: number) => (posa === "seduto" ? 110 : posa === "cade" ? 300 * Math.min(1, Math.max(0, (tl - 0.15) / 0.7)) : 0);
+const abbassa = (posa: Posa, tl: number) => (posa === "seduto" ? 110 : posa === "a_terra" ? 300 : posa === "cade" ? 300 * Math.min(1, Math.max(0, (tl - 0.15) / 0.7)) : 0);
 
 function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: boolean): { ch: Camera; bg: Camera } {
   const k = interpolate(t, [r.da, r.a], [0, 1], clamp);
@@ -45,7 +45,7 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
   if (r.quadro === "largo" || !f) {
     // un po' piu' vicino e piu' in basso: la testa (anche di chi e' seduto) resta sopra la scritta, che sta a y 1190
     scala = 1.12 * spinta; fx = 540 + deriva * 14 * k;
-    fy = attori.some((a) => a.posa === "seduto" || a.posa === "cade") ? 1160 : 1050;
+    fy = attori.some((a) => a.posa === "seduto" || a.posa === "cade" || a.posa === "a_terra") ? 1160 : 1050;
   }
   else if (r.quadro === "medio") {
     scala = 1.72 * spinta;
@@ -188,19 +188,15 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
       }} />
       {scene.map((x, i) => {
         const da = Math.round(x.da * fps), lungo = Math.max(1, Math.round((x.a - x.da) * fps));
-        const stadio = ["stadio", "panchina"].includes(props.luoghi[x.luogo]?.tipo ?? "");
         const calcia = x.personaggi.some((p) => p.posa === "calcia");
-        const file: Record<string, string> = { fischio: "fischio", boato: "boato", fischi_stadio: "fischi_stadio", notifica: "ding", whoosh: "whoosh", calcio_pallone: "calcio_pallone" };
+        const file: Record<string, string> = { fischio: "fischio", notifica: "ding", whoosh: "whoosh", calcio_pallone: "calcio_pallone" };
         return (
           <React.Fragment key={i}>
             {i > 0 && <Sequence from={Math.max(0, da - 3)} durationInFrames={20} layout="none"><Audio src={staticFile("suoni/whoosh.mp3")} volume={0.16} /></Sequence>}
             {x.cartello && x.cartello.tipo !== "scelta" && <Sequence from={da + (i === 0 ? Math.round(2.5 * fps) : 3)} durationInFrames={15} layout="none"><Audio src={staticFile("suoni/pop.mp3")} volume={0.3} /></Sequence>}
-            {(stadio || x.suono === "folla") && x.suono !== "silenzio" && (
-              <Sequence from={da} durationInFrames={lungo} layout="none"><Audio src={staticFile("suoni/folla.mp3")} loop volume={x.suono === "folla" ? 0.32 : 0.12} /></Sequence>
-            )}
             {file[x.suono] && (
               <Sequence from={da + Math.round((x.suono === "calcio_pallone" && calcia ? ISTANTE_CALCIO : 0.1) * fps)} durationInFrames={Math.round(3.5 * fps)} layout="none">
-                <Audio src={staticFile(`suoni/${file[x.suono]}.mp3`)} volume={x.suono === "boato" ? 0.55 : 0.45} />
+                <Audio src={staticFile(`suoni/${file[x.suono]}.mp3`)} volume={0.4} />
               </Sequence>
             )}
             {calcia && x.suono !== "calcio_pallone" && (

@@ -14,11 +14,12 @@ from pathlib import Path
 import edge_tts
 
 VOCI = {"it": "it-IT-DiegoNeural", "en": "en-US-AndrewNeural"}
-POSE = {"fermo", "seduto", "cammina", "corre", "calcia", "cade", "esulta", "indica", "braccia_conserte", "ride", "parla", "fissa", "lancia"}
-ESPRESSIONI = {"neutra", "felice", "arrabbiata", "triste", "sorpresa", "spaventata", "sprezzante"}
+POSE = {"fermo", "seduto", "cammina", "zoppica", "corre", "calcia", "cade", "a_terra", "esulta", "indica", "braccia_conserte", "ride", "parla", "fissa", "lancia"}
+ESPRESSIONI = {"neutra", "felice", "arrabbiata", "triste", "sorpresa", "spaventata", "sprezzante", "dolore", "determinata"}
 INQUADRATURE = {"campo_largo", "piano_medio", "primo_piano", "dall_alto"}
 CARTELLI = {"badge", "contatore", "tabellone", "notifica", "lavagna", "nome", "scelta"}
-SUONI = {"fischio", "folla", "boato", "fischi_stadio", "notifica", "calcio_pallone", "whoosh", "silenzio"}
+# folla, boato e fischi del pubblico tolti il 18/11: generati in codice suonavano come fruscio
+SUONI = {"fischio", "notifica", "calcio_pallone", "whoosh", "silenzio"}
 POSIZIONI = {"sinistra", "centro", "destra"}
 PUBLIC = Path("public")
 PUNTEGGIATURA_FINE = re.compile(r"[.,!?;:…»\"”]$")
@@ -115,7 +116,8 @@ def controlla(sb: dict) -> None:
             avvisi.append(f"scena {n}: inquadratura {s.get('inquadratura')!r} -> campo_largo")
             s["inquadratura"] = "campo_largo"
         if s.get("suono") not in SUONI:
-            s["suono"] = "silenzio" if not s.get("suono") else ("folla" if "foll" in str(s["suono"]) else "whoosh")
+            avvisi.append(f"scena {n}: suono {s.get('suono')!r} -> silenzio")
+            s["suono"] = "silenzio"
         c = s.get("cartello")
         if c and c.get("tipo") not in CARTELLI:
             avvisi.append(f"scena {n}: cartello {c.get('tipo')!r} tolto")
@@ -220,7 +222,10 @@ def main(percorso: str, lingua: str, velocita: str) -> None:
     luoghi = {}
     for lg in sb.get("luoghi", []):
         img = PUBLIC / "serie" / "sfondi" / f"{lg['id']}.jpg"
-        luoghi[lg["id"]] = {"img": f"serie/sfondi/{lg['id']}.jpg" if img.exists() else None, "tipo": lg.get("tipo") or tipo_luogo(lg)}
+        sfocata = PUBLIC / "serie" / "sfondi" / f"{lg['id']}_sfocato.jpg"
+        luoghi[lg["id"]] = {"img": f"serie/sfondi/{lg['id']}.jpg" if img.exists() else None,
+                            "sfocata": f"serie/sfondi/{lg['id']}_sfocato.jpg" if sfocata.exists() else None,
+                            "tipo": lg.get("tipo") or tipo_luogo(lg)}
 
     i_scelta = next((i for i, s in enumerate(scene) if s["cartello"] and s["cartello"]["tipo"] == "scelta"), len(scene) - 1)
     scelta = sb.get("scelta") or {}

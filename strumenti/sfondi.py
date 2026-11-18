@@ -93,6 +93,9 @@ def main(percorso: str, rifai: bool) -> None:
         seme = int(hashlib.sha1(lg["id"].encode()).hexdigest()[:6], 16)  # stesso luogo, stessa immagine
         file.write_bytes(genera(prompt, seme, *accesso) if accesso else genera_cf(prompt, seme))
         print(f"{file.name}: {file.stat().st_size // 1024} KB")
+        if shutil.which("ffmpeg"):  # copia sfocata per i primi piani: il browser non deve sfocare a ogni fotogramma
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(file), "-vf", "gblur=sigma=3", "-q:v", "3",
+                            str(file.with_name(f"{lg['id']}_sfocato.jpg"))], check=True)
 
 
 if __name__ == "__main__":

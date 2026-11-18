@@ -1,9 +1,9 @@
 // Formato della puntata: lo storyboard (scritto da ChatGPT o dal batch di Claude) passa da
 // strumenti/serie_voce.py, che aggiunge voce, tempi di ogni parola e scritte a pezzi -> public/props.json.
 
-export type Posa = "fermo" | "seduto" | "cammina" | "corre" | "calcia" | "cade" | "esulta" | "indica"
+export type Posa = "fermo" | "seduto" | "cammina" | "zoppica" | "corre" | "calcia" | "cade" | "a_terra" | "esulta" | "indica"
   | "braccia_conserte" | "ride" | "parla" | "fissa" | "lancia";
-export type Espressione = "neutra" | "felice" | "arrabbiata" | "triste" | "sorpresa" | "spaventata" | "sprezzante";
+export type Espressione = "neutra" | "felice" | "arrabbiata" | "triste" | "sorpresa" | "spaventata" | "sprezzante" | "dolore" | "determinata";
 export type Inquadratura = "campo_largo" | "piano_medio" | "primo_piano" | "dall_alto";
 export type TipoCartello = "badge" | "contatore" | "tabellone" | "notifica" | "lavagna" | "nome" | "scelta";
 export type Suono = "fischio" | "folla" | "boato" | "fischi_stadio" | "notifica" | "calcio_pallone" | "whoosh" | "silenzio";
@@ -32,7 +32,7 @@ export type Scena = {
   n: number; da: number; a: number; luogo: string; inquadratura: Inquadratura;
   personaggi: Presenza[]; cartello: Cartello; suono: Suono; pezzi: Pezzo[];
 };
-export type Luogo = { img: string | null; tipo: string };
+export type Luogo = { img: string | null; sfocata?: string | null; tipo: string };
 
 export type PropsPuntata = {
   durata: number;
