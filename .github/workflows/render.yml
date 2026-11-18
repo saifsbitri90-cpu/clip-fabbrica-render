@@ -13,7 +13,7 @@ on:
         required: true
         default: "storyboard/prova-hd.json"
       composizione:
-        description: "Voxel (monologo) o VoxelHD (dialogo ad alta qualita')"
+        description: "Voxel (monologo), VoxelHD (dialogo ad alta qualita') o Personaggio (prova Quaternius)"
         required: true
         default: "VoxelHD"
 

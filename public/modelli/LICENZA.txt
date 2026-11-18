@@ -1,0 +1,6 @@
+Modelli e animazioni di Quaternius (https://quaternius.com), licenza CC0 1.0 (pubblico dominio):
+- Universal Base Characters [Standard]: Superhero_Male_FullBody, Hair_SimpleParted, Eyebrows_Regular
+- Universal Animation Library [Standard]: UAL1_Standard.glb, qui rinominato animazioni.glb
+
+Scaricati gratis da itch.io il 18/11/2026. Texture ridotte a 1024 px; nel .gltf del corpo due
+riferimenti a file inesistenti (T_Hair_1_Normal_png.png, T_Eye_Normal_png.png) puntano ai file giusti.
