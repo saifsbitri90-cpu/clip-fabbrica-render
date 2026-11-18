@@ -13,9 +13,8 @@ on:
         required: true
         default: "storyboard/prova-hd.json"
       composizione:
-        description: "Voxel (monologo), VoxelHD (dialogo ad alta qualita') o Personaggio (prova Quaternius)"
+        description: "nome della composizione registrata in src/Radice.tsx (il 3D e' in archivio-3d/)"
         required: true
-        default: "VoxelHD"
 
 jobs:
   render:
