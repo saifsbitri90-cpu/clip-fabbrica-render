@@ -1,0 +1,254 @@
+252 sounds in the bank forge_v2r6+forge04r1+fit1+pluck1
+id                              dur s peak s  kinds / knobs
+click/double                    0.103  0.004  click | dur param, pitch F#7 -27c
+click/snap                      0.062  0.004  click | dur param, pitch C#7 -9c
+click/soft                      0.094  0.004  click | dur param, pitch F#7 -33c
+click/thock                     0.103  0.004  click | dur param
+click/tink                      0.070  0.004  click | dur param, pitch E8 +32c
+cut_hit/air                     0.549  0.043  hit | dur trim, pitch Ab1 -32c
+cut_hit/kick                    0.325  0.013  drop,hit | dur trim, pitch D1 +16c
+cut_hit/punch                   0.282  0.058  hit,land | dur trim, pitch G1 -43c
+cut_hit/rumble                  1.400  0.072  hit | dur trim, pitch E1 -40c
+cut_hit/sub                     0.286  0.021  drop,hit | dur trim, pitch F#1 -21c
+downlifter/air_fall             2.060  0.148  drop | dur param, pitch Ab5
+downlifter/flange_air           2.954  0.221  drop | dur param, pitch Eb6
+downlifter/shepard_fall         4.019  0.280  drop | dur param, pitch Ab5
+downlifter/sub_sink             1.787  0.152  drop | dur param, pitch Ab4 +45c
+downlifter/synth_fall           4.039  0.331  drop | dur param, pitch E5 -45c
+downlifter/tape                 1.630  0.103  drop | dur param, pitch E4 +7c
+drip/bloop                      0.372  0.030  pop | dur trim, pitch Ab4 +19c
+drip/bubble                     0.289  0.015  pop | dur trim, pitch C4 -48c
+drip/drop                       0.334  0.022  pop | dur trim, pitch Eb4 -27c
+drip/plink                      0.257  0.030  pop | dur trim, pitch F5 -10c
+drip/tiny                       0.142  0.009  pop | dur trim, pitch D6 -37c
+fit/bell/small_bell             1.660  0.062  bell | dur param, pitch B7 +38c
+fit/click/floss_lid             0.132  0.007  click,tick.crisp | dur param
+fit/hit/bamboo_tok              0.170  0.011  hit,tock | dur trim
+fit/key.space/thock_space       0.390  0.021  key.space | dur param
+fit/key/lubed                   0.424  0.075  key | dur trim
+fit/key/medium                  0.426  0.103  key | dur trim
+fit/key/thock                   0.454  0.015  key | dur trim
+fit/land.light/finger_phone     0.331  0.013  land.light,text | dur trim
+fit/land.light/finger_wood      0.339  0.009  land.light,tock | dur trim
+fit/land.light/fingertip_book   0.375  0.009  land.light,tock | dur trim, pitch G3 +30c
+fit/pop/lip_pop                 0.221  0.009  pop | dur trim
+fit/pop/mouth_plop              0.281  0.015  pop | dur trim, pitch A5 -42c
+fit/snap/switch_flip            0.185  0.035  snap,click | dur param
+fit/tick/domino                 0.139  0.007  tick | dur param
+fit/whoosh.short/bamboo_swish   0.477  0.130  whoosh.short | dur param, pitch Bb3 -9c
+glitch/burst                    0.869  0.361  glitch | dur param
+glitch/chirp                    0.407  0.076  glitch | dur param
+glitch/crush                    0.540  0.402  glitch | dur param
+glitch/data                     0.490  0.391  glitch | dur param
+glitch/dropout                  0.740  0.649  glitch | dur param
+glitch/hit                      0.340  0.252  glitch | dur param
+glitch/mid                      0.245  0.038  glitch | dur param
+glitch/scramble                 0.590  0.536  glitch | dur param
+glitch/stutter                  0.640  0.374  glitch | dur param
+hover_tick/air                  0.074  0.004  tick | dur param
+hover_tick/detent               0.084  0.004  tick | dur param, pitch Ab8 +31c
+hover_tick/high                 0.047  0.004  tick | dur param, pitch B8 +21c
+hover_tick/mid                  0.089  0.004  tick | dur param, pitch B8 +21c
+hover_tick/ping                 0.050  0.004  tick | dur param, pitch Bb8 -15c
+impact/blast                    5.759  0.024  hit,land | dur trim, pitch G1 -36c
+impact/classic                  4.797  0.117  hit,land | dur trim, pitch B1 +7c
+impact/deep                     6.205  0.084  hit,land | dur trim, pitch Eb1 -40c
+impact/metal                    5.022  0.117  hit,land | dur trim, pitch B1 +7c
+impact/punch                    2.845  0.066  hit,land | dur trim, pitch C2 +16c
+impact/swell                    6.232  0.616  hit,land | dur trim, pitch B1 +7c
+knock/desk                      0.224  0.025  tock,land.light | dur trim, pitch F5
+knock/double                    0.156  0.058  tock | dur trim, pitch C5 +45c
+knock/plastic                   0.153  0.052  tock | dur trim, pitch D5 +7c
+knock/snap                      0.134  0.042  tock | dur trim, pitch C6 +14c
+knock/wood                      0.154  0.015  tock,land.light | dur trim, pitch G4 +35c
+logo_sting/reverse_bloom        2.127  0.376  sting | dur trim, pitch F#6
+logo_sting/soft_bloom           1.850  0.298  sting | dur trim, pitch B5
+logo_sting/spark                1.840  0.011  sting | dur trim, pitch E6
+logo_sting/whoosh_glass         1.912  0.201  sting | dur trim, pitch E6
+logo_sting/zip_ping             1.656  0.175  sting | dur trim, pitch A6
+mallet/celesta                  0.414  0.024  bell,text | dur trim, pitch G5
+mallet/flourish                 0.504  0.051  bell | dur trim, pitch G5 +40c
+mallet/glock                    0.412  0.011  bell,text | dur trim, pitch Eb6 +41c
+mallet/marimba                  0.564  0.006  bell,text | dur trim, pitch G4
+mallet/pluck                    0.494  0.056  text,bell | dur trim, pitch C#4 +43c
+mallet/up4                      0.749  0.336  bell | dur trim, pitch C6
+notify/m0                       2.300  0.004  bell,hit,text,click.confirm | dur param, pitch C5
+notify/m1                       2.000  0.004  bell,hit,text,click.confirm | dur param, pitch A5
+notify/m2                       1.800  0.004  bell,hit,text,click.confirm | dur param, pitch G5
+notify/m3                       2.500  0.006  bell,hit,text,click.confirm | dur param, pitch A4
+notify/m4                       1.800  0.004  bell,hit,text,click.confirm | dur param, pitch D5
+notify/m5                       1.700  0.004  bell,hit,text,click.confirm | dur param, pitch E6
+notify/mid_tine                 0.425  0.038  click.confirm,bell | dur param, pitch Ab5
+notify/mid_wood                 0.317  0.038  click.confirm,bell | dur param, pitch A5
+pluck/kalimba                   3.000  0.013  bell,text,hit | dur trim, pitch C5
+pluck/kalimba_ring              3.000  0.013  bell,text,hit | dur trim, pitch C5
+pluck/kalimba_soft              3.000  0.013  bell,text,hit | dur trim, pitch C5
+pop/0                           0.200  0.004  pop | dur param, pitch C5 -11c
+pop/1                           0.150  0.004  pop | dur param, pitch C#6 -14c
+pop/2                           0.250  0.009  pop | dur param, pitch E4
+pop/3                           0.160  0.004  pop | dur param, pitch F#5 -47c
+pop/4                           0.220  0.004  pop | dur param, pitch A4 +39c
+pro_click/glass                 0.062  0.004  click,tick.crisp | dur param, pitch C9 -47c
+pro_click/mouse                 0.054  0.004  click,tick.crisp | dur param, pitch G7
+pro_click/snap                  0.047  0.004  click,tick.crisp | dur param, pitch Bb8 -45c
+pro_click/soft                  0.053  0.004  click,tick.crisp | dur param, pitch F8 -37c
+pro_click/tink                  0.037  0.004  click,tick.crisp | dur param, pitch Bb8 +11c
+pro_glitch/crunchy              0.710  0.652  glitch | dur param
+pro_glitch/data                 0.670  0.620  glitch | dur param
+pro_glitch/fastroll             0.550  0.504  glitch | dur param
+pro_glitch/framelock            0.730  0.662  glitch | dur param
+pro_glitch/sparse               0.750  0.704  glitch | dur param
+pro_glitch/standard             0.710  0.659  glitch | dur param
+pro_hover_tick/air              0.055  0.004  tick,tick.crisp | dur param
+pro_hover_tick/detent           0.036  0.004  tick,tick.crisp | dur param, pitch F#9 -33c
+pro_hover_tick/glass            0.044  0.004  tick,tick.crisp | dur param, pitch Bb8 +6c
+pro_hover_tick/ping             0.039  0.004  tick,tick.crisp | dur param, pitch A9 -22c
+pro_hover_tick/soft             0.032  0.004  tick,tick.crisp | dur param, pitch F#9 -23c
+pro_impact/air                  0.848  0.172  hit,land | dur trim, pitch F1 -34c
+pro_impact/deep                 1.315  0.213  hit,land | dur trim, pitch Ab1 -37c
+pro_impact/rumble               0.993  0.619  hit,land | dur trim, pitch Eb1 +28c
+pro_impact/short                0.667  0.181  hit,land | dur trim, pitch D2 +37c
+pro_impact/swell                1.118  0.456  hit,land | dur trim, pitch D2 +37c
+pro_logo_sting/chirp_hum        0.985  0.083  sting | dur param, pitch Eb2 -40c
+pro_logo_sting/sweep_hit        1.070  0.338  sting | dur param, pitch E4
+pro_logo_sting/swell_sting      1.300  0.466  sting | dur param, pitch D4
+pro_logo_sting/taps_tone        0.950  0.157  sting | dur param, pitch C5
+pro_logo_sting/zap_bloom        0.960  0.076  sting | dur param, pitch C4
+pro_notify/ding_1822            0.260  0.005  bell,click.confirm | dur param, pitch Bb6 -40c
+pro_notify/ding_1930            0.270  0.013  bell,click.confirm | dur param, pitch B6 -40c
+pro_notify/ding_2045            0.360  0.005  bell,click.confirm | dur param, pitch C7 -40c
+pro_notify/ding_2167            0.300  0.013  bell,click.confirm | dur param, pitch C#7 -40c
+pro_notify/ding_2296            0.260  0.006  bell,click.confirm | dur param, pitch D7 -40c
+pro_pop/bloop                   0.123  0.006  pop | dur param, pitch C5 -11c
+pro_pop/boop                    0.114  0.004  pop | dur param, pitch C5 -11c
+pro_pop/chirp                   0.162  0.037  pop | dur param, pitch C5 -11c
+pro_pop/double                  0.157  0.003  pop | dur param, pitch C5 -11c
+pro_pop/thup                    0.099  0.004  pop | dur param, pitch C5 -11c
+pro_pop/tink                    0.093  0.003  pop | dur param, pitch C5 -11c
+pro_pop_in/airy                 0.170  0.018  pop,land,land.light,snap | dur param, pitch A2 -46c
+pro_pop_in/deep                 0.176  0.019  pop,land,land.light,snap | dur param, pitch D2 +46c
+pro_pop_in/double               0.165  0.015  pop,land,land.light,snap | dur param, pitch Bb2 -45c
+pro_pop_in/knock                0.152  0.011  pop,land,land.light,snap | dur param, pitch Bb2 -23c
+pro_pop_in/round                0.172  0.019  pop,land,land.light,snap | dur param, pitch A2 +34c
+pro_riser/air_gate              1.200  1.194  riser | dur param, pitch G4 +35c
+pro_riser/chop                  1.000  0.995  riser | dur param, pitch Ab6 +40c
+pro_riser/nblips                1.000  0.995  riser | dur param, pitch Ab6 +40c
+pro_riser/nblips_hi             0.850  0.845  riser | dur param, pitch E7 -24c
+pro_riser/roll                  1.300  1.278  riser | dur param, pitch Ab6 +40c
+pro_shimmer/m0                  1.950  0.853  shimmer | dur param, pitch D
+pro_shimmer/m1                  1.400  0.362  shimmer | dur param, pitch D
+pro_shimmer/m2                  1.650  1.063  shimmer | dur param, pitch D
+pro_shimmer/m3                  1.150  0.110  shimmer | dur param, pitch G
+pro_shimmer/m4                  2.400  1.159  shimmer | dur param, pitch F
+pro_sub_drop/bright             1.250  0.335  drop | dur param, pitch F1 +14c
+pro_sub_drop/low                1.139  0.468  drop | dur param, pitch D1 +14c
+pro_sub_drop/quick              1.000  0.249  drop | dur param, pitch F#1 -9c
+pro_sub_drop/ref                1.445  0.416  drop | dur param, pitch F1 +14c
+pro_sub_drop/soft               1.482  0.493  drop | dur param, pitch F1 +14c
+pro_tap/double                  0.118  0.009  land.light,tock | dur param, pitch C#3
+pro_tap/finger                  0.089  0.013  land.light,tock | dur param, pitch C#3 +31c
+pro_tap/glass                   0.098  0.009  land.light,tock | dur param, pitch D3 +21c
+pro_tap/knock                   0.086  0.011  land.light,tock | dur param, pitch D3 +44c
+pro_tap/soft                    0.098  0.018  land.light,tock | dur param, pitch B2 -15c
+pro_typing_key/blip             0.081  0.007  key | dur param
+pro_typing_key/crackle          0.072  0.007  key | dur param
+pro_typing_key/double           0.092  0.009  key | dur param
+pro_typing_key/glass            0.065  0.007  key | dur param
+pro_typing_key/soft             0.072  0.011  key | dur param
+pro_typing_key/tick             0.061  0.007  key | dur param
+pro_typing_run/blip             1.507  1.067  key.run | dur param
+pro_typing_run/double           1.593  0.009  key.run | dur param
+pro_typing_run/glass            1.474  0.686  key.run | dur param
+pro_typing_run/soft             1.755  0.528  key.run | dur param
+pro_typing_run/standard         1.444  0.976  key.run | dur param
+pro_typing_run/tick             1.266  0.950  key.run | dur param
+pro_whoosh_big/gritty           0.931  0.323  whoosh.long,swell | dur shape, apex, pitch F#1 -6c
+pro_whoosh_big/long             1.120  0.519  whoosh.long,swell | dur shape, apex, pitch F1 -8c
+pro_whoosh_big/reverse          1.055  0.705  whoosh.long,swell | dur shape, apex, pitch F#1 -42c
+pro_whoosh_big/swell            0.805  0.354  whoosh.long,swell | dur shape, apex, pitch G1 -37c
+pro_whoosh_big/tonal            0.806  0.350  whoosh.long,swell | dur shape, apex, pitch C#2 +18c
+pro_whoosh_big/windy            0.770  0.340  whoosh.long,swell | dur shape, apex, pitch F#1 +23c
+pro_zip/arc                     0.459  0.096  zip | dur param, pitch B5 +21c
+pro_zip/down                    0.287  0.059  zip | dur param, pitch Bb4 +42c
+pro_zip/down_warm               0.372  0.035  zip | dur param, pitch D3 +29c
+pro_zip/up                      0.350  0.169  zip | dur param, pitch Ab6 +48c
+pro_zip/up_hi                   0.344  0.136  zip | dur param, pitch C#9
+reverse_swell/breath            1.235  0.733  swell | dur param
+reverse_swell/cymbal            0.895  0.518  swell | dur param
+reverse_swell/dark              0.919  0.570  swell | dur param
+reverse_swell/ring              1.680  0.615  swell | dur param
+reverse_swell/short             0.651  0.333  swell | dur param
+riser/air                       2.400  2.389  riser | dur param, pitch F5
+riser/build                     1.758  1.202  riser | dur param
+riser/dark                      0.951  0.697  riser | dur param
+riser/rush                      1.756  1.746  riser | dur param, pitch G4 +23c
+riser/shepard                   3.708  3.654  riser | dur param, pitch C4 -11c
+riser/snatch                    0.635  0.386  riser | dur param
+riser/swell                     2.200  2.192  riser | dur param, pitch F#6 +23c
+riser/tension                   2.800  2.771  riser | dur param, pitch D5 +37c
+shimmer/m0                      4.200  0.746  shimmer | dur param, pitch D
+shimmer/m1                      4.000  0.705  shimmer | dur param, pitch D
+shimmer/m2                      4.200  0.029  shimmer | dur param, pitch D
+shimmer/m3                      3.600  0.551  shimmer | dur param, pitch C
+shimmer/m4                      4.200  0.786  shimmer | dur param, pitch D
+shimmer/m5                      4.400  0.682  shimmer | dur param, pitch A
+shutter/dslr                    0.242  0.042  snap,click | dur trim
+shutter/film                    0.283  0.100  snap | dur trim
+shutter/mirror                  0.331  0.068  snap | dur trim
+shutter/quick                   0.160  0.024  snap,click | dur trim
+shutter/snap                    0.137  0.061  snap,click | dur trim
+sub_drop/808                    2.054  0.051  drop | dur param, pitch Eb1 +49c
+sub_drop/gritty                 2.150  0.134  drop | dur param, pitch D1 -34c
+sub_drop/long                   2.088  0.274  drop | dur param, pitch B0 -49c
+sub_drop/pro                    2.097  0.417  drop | dur param, pitch F1 +14c
+sub_drop/punch                  1.004  0.006  drop | dur param, pitch G1 +35c
+swipe/cloth                     0.676  0.176  whoosh.short | dur shape, apex
+swipe/flick                     0.568  0.131  whoosh.short | dur shape, apex
+swipe/glide                     0.736  0.258  whoosh.short | dur shape, apex
+swipe/paper                     0.770  0.130  whoosh.short | dur shape, apex
+swipe/velvet                    1.150  0.265  whoosh.short | dur shape, apex
+swish/blade                     0.368  0.059  whoosh.short | dur shape, apex
+swish/bright                    0.345  0.155  whoosh.short | dur shape, apex
+swish/cane                      0.700  0.072  whoosh.short | dur shape, apex
+swish/flick                     0.320  0.111  whoosh.short | dur shape, apex
+swish/soft                      0.883  0.110  whoosh.short | dur shape, apex
+swish/stick                     0.527  0.098  whoosh.short | dur shape, apex
+swish/zing                      0.535  0.065  whoosh.short | dur shape, apex
+tap/finger                      0.120  0.006  tock,land.light,click,tick | dur param, pitch Bb2 -8c
+tap/glass                       0.152  0.004  tock,land.light,click,tick | dur param, pitch C#3 +42c
+tap/knuckle                     0.152  0.005  tock,land.light,click,tick | dur param, pitch D3 +37c
+tap/soft                        0.130  0.005  tock,land.light,click,tick | dur param, pitch F#2 -27c
+tap/table                       0.135  0.005  tock,land.light,click,tick | dur param, pitch G2 +36c
+toggle/latch                    0.217  0.139  snap,click | dur trim, pitch Ab7 +24c
+toggle/micro                    0.123  0.004  snap,click | dur trim
+toggle/off                      0.137  0.004  snap,click | dur trim, pitch D7 +24c
+toggle/on                       0.167  0.004  snap,click | dur trim, pitch B7 -7c
+toggle/rocker                   0.235  0.083  snap,click | dur trim, pitch C#7 -29c
+typing_key/clicky               0.194  0.022  key,key.space,key.return | dur trim
+typing_key/crisp                0.223  0.011  key,key.space,key.return | dur trim
+typing_key/deep                 0.319  0.013  key,key.space,key.return | dur trim
+typing_key/laptop               0.192  0.013  key,key.space,key.return | dur trim
+typing_key/light                0.158  0.013  key,key.space,key.return | dur trim
+typing_key/thock                0.337  0.013  key,key.space,key.return | dur trim
+ui_pop/blip                     0.118  0.017  pop | dur trim, pitch A5 +18c
+ui_pop/boop                     0.195  0.028  pop | dur trim, pitch F4 +39c
+ui_pop/fall                     0.204  0.021  pop | dur trim, pitch F4 -17c
+ui_pop/soft                     0.180  0.042  pop,land.light | dur trim, pitch F#4
+ui_pop/step                     0.187  0.044  pop | dur trim, pitch Bb4
+ui_pop/wide                     0.190  0.044  pop | dur trim, pitch Eb5
+whoosh_big/cape                 1.327  0.459  whoosh.long,swell | dur shape, apex
+whoosh_big/deep                 2.038  0.749  whoosh.long,swell | dur shape, apex
+whoosh_big/gust                 1.886  0.603  whoosh.long,swell | dur shape, apex
+whoosh_big/jet                  1.649  0.544  whoosh.long,swell | dur shape, apex
+whoosh_big/reverse              1.505  0.853  whoosh.long,swell | dur shape, apex
+whoosh_big/swell                1.355  0.436  whoosh.long,swell | dur shape, apex
+whoosh_big/thump                1.030  0.138  whoosh.long | dur shape, apex
+whoosh_big/thump_airy           0.915  0.153  whoosh.long | dur shape, apex
+whoosh_big/thump_deep           1.360  0.165  whoosh.long | dur shape, apex
+whoosh_fast/crisp               1.056  0.131  whoosh.short,suck | dur shape, apex
+whoosh_fast/heavy               0.765  0.135  whoosh.short,suck | dur shape, apex
+whoosh_fast/reverse             0.768  0.294  whoosh.short,suck | dur shape, apex
+whoosh_fast/sleeve              1.090  0.157  whoosh.short,suck | dur shape, apex
+whoosh_fast/tight               0.536  0.162  whoosh.short,suck | dur shape, apex
+whoosh_fast/whip                0.910  0.116  whoosh.short | dur shape, apex
+whoosh_fast/whistle             0.997  0.193  whoosh.short,suck | dur shape, apex

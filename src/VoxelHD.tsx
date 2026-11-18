@@ -7,7 +7,7 @@ import React, { useMemo } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { useThree } from "@react-three/fiber";
-import { AbsoluteFill, Audio, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
 import { loadFont } from "@remotion/google-fonts/Poppins";
 
@@ -15,8 +15,30 @@ const { fontFamily } = loadFont("normal", { weights: ["800"], subsets: ["latin"]
 
 export type ParolaHD = { t: number; d: number; w: string; chi: string };
 export type ScenaHD = { da: number; a: number; chi: string; inquadratura?: "largo" | "medio" | "primo"; card?: { titolo: string; valore: string } };
-export type PropsVoxelHD = { durata: number; parole: ParolaHD[]; scene: ScenaHD[]; etichetta: string; audio: string; evidenzia: string[] };
-export const propsVoxelHDVuote: PropsVoxelHD = { durata: 5, parole: [], scene: [], etichetta: "", audio: "", evidenzia: [] };
+export type PropsVoxelHD = { durata: number; parole: ParolaHD[]; scene: ScenaHD[]; etichetta: string; audio: string; evidenzia: string[]; suoni?: string[] };
+export const propsVoxelHDVuote: PropsVoxelHD = { durata: 5, parole: [], scene: [], etichetta: "", audio: "", evidenzia: [], suoni: [] };
+
+// ------------------------------------------------------------ suono
+// Musica al 20%, giu' all'8% quando qualcuno parla (media su 8 fotogrammi: niente scatti),
+// entrata in 0,5 s e uscita in 1 s. Gli effetti seguono gli eventi del video. Si usano solo i
+// file presenti in public/suoni (lista "suoni" scritta da voce_hd.py): un suono mancante non rompe il render.
+function volumeMusica(f: number, fps: number, parole: ParolaHD[], durata: number): number {
+  let somma = 0;
+  for (let k = 0; k < 8; k++) {
+    const t = (f - k) / fps;
+    somma += parole.some((p) => t >= p.t - 0.05 && t <= p.t + p.d + 0.12) ? 0.08 : 0.2;
+  }
+  const t = f / fps;
+  const sfuma = Math.min(1, t / 0.5) * Math.min(1, Math.max(0, (durata + 0.5 - t) / 1));
+  return (somma / 8) * sfuma;
+}
+
+const Effetto: React.FC<{ nome: string; da: number; volume: number; suoni: string[] }> = ({ nome, da, volume, suoni }) =>
+  suoni.includes(nome) ? (
+    <Sequence from={Math.max(0, Math.round(da))} layout="none">
+      <Audio src={staticFile(`suoni/${nome}.mp3`)} volume={volume} />
+    </Sequence>
+  ) : null;
 
 // ------------------------------------------------------------ strumenti
 
@@ -197,7 +219,7 @@ const Telecamera: React.FC<{ scene: ScenaHD[]; t: number; fps: number }> = ({ sc
 
 // ------------------------------------------------------------ composizione
 
-export const VoxelHD: React.FC<PropsVoxelHD> = ({ parole, scene, etichetta, audio, evidenzia }) => {
+export const VoxelHD: React.FC<PropsVoxelHD> = ({ parole, scene, etichetta, audio, evidenzia, durata, suoni = [] }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
@@ -252,6 +274,20 @@ export const VoxelHD: React.FC<PropsVoxelHD> = ({ parole, scene, etichetta, audi
         })}
       </div>
       {audio ? <Audio src={staticFile(audio)} /> : null}
+      {suoni.includes("musica") ? (
+        <Audio src={staticFile("suoni/musica.mp3")} loop volume={(f) => volumeMusica(f, fps, parole, durata)} />
+      ) : null}
+      {/* tempi misurati da earshot: whoosh picco a 0,10 s, colpo 0,42 s, pop 0,04 s, crescendo 1,05 s */}
+      <Effetto nome="colpo" da={0} volume={0.45} suoni={suoni} />
+      {scene.slice(1).map((s, k) => (
+        <Effetto key={`w${k}`} nome="whoosh" da={(s.da - 0.1) * fps} volume={0.45} suoni={suoni} />
+      ))}
+      {scene.filter((s) => s.card).map((s, k) => (
+        <Effetto key={`p${k}`} nome="pop" da={s.da * fps + 6} volume={0.7} suoni={suoni} />
+      ))}
+      {scene.length > 2 ? (
+        <Effetto nome="crescendo" da={(scene[scene.length - 1].da - 1.05) * fps} volume={0.3} suoni={suoni} />
+      ) : null}
     </AbsoluteFill>
   );
 };

@@ -54,8 +54,9 @@ def main(percorso: str) -> None:
             t0 += durata
     if not 12 <= t0 <= 59:
         sys.exit(f"DURATA {t0:.1f} s fuori da 12-59 s")
+    suoni = sorted(p.stem for p in (public / "suoni").glob("*.mp3"))  # solo i suoni che esistono
     props = {"durata": t0, "parole": tutte, "scene": scene, "etichetta": sb.get("etichetta", ""),
-             "audio": "voce.mp3", "evidenzia": sb.get("evidenzia", [])}
+             "audio": "voce.mp3", "evidenzia": sb.get("evidenzia", []), "suoni": suoni}
     (public / "props.json").write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
     print(f"dialogo {t0:.1f} s, {len(tutte)} parole, {len(scene)} battute: controlli superati")
 
