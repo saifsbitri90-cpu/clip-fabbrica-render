@@ -14,13 +14,20 @@ import type { Personaggio, Posa, Posizione, PropsPuntata, Scena } from "./tipi";
 const TERRA = 1580; // linea dei piedi nel mondo 1080x1920
 const XPOS: Record<Posizione, number> = { sinistra: 300, centro: 540, destra: 780 };
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+const TAU = Math.PI * 2;
+// una tinta leggera per luogo, sopra fondale e personaggi: li mette nella stessa luce
+const TINTE: Record<string, string> = {
+  stadio: "rgba(255,150,80,0.07)", panchina: "rgba(255,185,120,0.05)", corridoio: "rgba(70,100,170,0.10)", spogliatoio: "rgba(255,220,170,0.05)",
+};
 
 type Quadro = "largo" | "medio" | "primo";
 type Ripresa = { da: number; a: number; quadro: Quadro; fuoco: number };
-type Attore = { p: Personaggio; posa: Posa; espr: Scena["personaggi"][number]["espressione"]; x: number; verso: 1 | -1; seme: number; tl: number };
+type Attore = { p: Personaggio; id: string; posa: Posa; espr: Scena["personaggi"][number]["espressione"]; x: number; xs: number;
+  verso: 1 | -1; seme: number; tl: number; parlando: number };
 
 /** un taglio a ogni pezzo di frase, alternando due inquadrature; mai riprese più corte di 0,75 s */
-function riprese(s: Scena, nAttori: number): Ripresa[] {
+function riprese(s: Scena, ids: string[], parlante: string | null): Ripresa[] {
+  const nAttori = ids.length;
   const schema: { quadro: Quadro; fuoco: number }[] =
     s.inquadratura === "campo_largo" ? [{ quadro: "largo", fuoco: 0 }, { quadro: "medio", fuoco: 0 }]
     : s.inquadratura === "piano_medio" ? [{ quadro: "medio", fuoco: 0 }, { quadro: "primo", fuoco: 0 }]
@@ -30,7 +37,13 @@ function riprese(s: Scena, nAttori: number): Ripresa[] {
   for (const p of s.pezzi.slice(1)) {
     if (p.da - inizi[inizi.length - 1] >= 0.75 && s.a - p.da >= 0.6) inizi.push(p.da);
   }
-  return inizi.map((da, i) => ({ da, a: inizi[i + 1] ?? s.a, ...schema[i % 2] }));
+  // durante una battuta la telecamera va su chi parla
+  return inizi.map((da, i) => {
+    const base = schema[i % 2];
+    const pz = s.pezzi.find((p) => p.da >= da - 0.01);
+    const chi = parlante && pz?.parole.some((w) => w.q) ? ids.indexOf(parlante) : -1;
+    return { da, a: inizi[i + 1] ?? s.a, quadro: chi >= 0 && base.quadro === "largo" ? "medio" : base.quadro, fuoco: chi >= 0 ? chi : base.fuoco };
+  });
 }
 
 /** quanto si abbassa la testa rispetto all'in piedi */
@@ -49,12 +62,12 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
   }
   else if (r.quadro === "medio") {
     scala = 1.72 * spinta;
-    fx = attori.length > 1 && r.fuoco === 0 ? attori.reduce((n, a) => n + a.x, 0) / attori.length : f.x;
+    fx = attori.length > 1 && r.fuoco === 0 ? attori.reduce((n, a) => n + a.xs, 0) / attori.length : f.xs;
     fy = TERRA - 320 + abbassa(f.posa, f.tl) * 0.6 + deriva * 8 * k;
   } else {
     scala = 2.9 * spinta;
     const altezza = (f.p.stile.altezza ?? 1);
-    fx = f.x + f.verso * 18 + deriva * 6 * k;
+    fx = f.xs + f.verso * 18 + deriva * 6 * k;
     fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 48;
   }
   fx = Math.min(Math.max(fx, 540 / scala), 1080 - 540 / scala); // mai fuori dal mondo
@@ -103,12 +116,44 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
   const vv = versi(s);
   const prima = scene[scene.indexOf(s) - 1];
   const giaCaduto = (id: string) => !!prima?.personaggi.some((q) => q.id === id && q.posa === "cade");
+  const parole = s.pezzi.flatMap((p) => p.parole);
+  const quando = (re: RegExp) => parole.find((w) => re.test(w.w.toLowerCase()))?.t;
+  /** l'azione parte sulla parola che la racconta (cade sulla parola chiave, si gira su «gira»...) */
+  const ritardo = (posa: Posa) => {
+    const tc = s.chiave_t ?? s.da;
+    const tt = posa === "cade" ? tc - 0.35
+      : posa === "si_gira" ? quando(/gir|volt/) ?? s.da
+      : posa === "alzati" ? quando(/pied|alz/) ?? tc
+      : posa === "blocca" ? quando(/blocc|ferm/) ?? s.da
+      : s.da + 0.1;
+    return Math.min(Math.max(0, tt - s.da - 0.15), Math.max(0, s.a - s.da - 1.0));
+  };
+  // bocca: si muove solo durante le parole tra virgolette, e solo a chi le dice
+  const battuta = parole.filter((w) => w.q);
+  const parlante = !battuta.length ? null : s.parlante
+    ?? s.personaggi.find((p) => p.id !== "tu" && ["parla", "si_gira", "blocca", "indica"].includes(p.posa))?.id ?? s.personaggi[0]?.id ?? null;
+  const iq = battuta.findIndex((w, k) => t >= w.t && t < (battuta[k + 1]?.t ?? w.t + 0.45));
+  const bocca = iq < 0 ? 0 : 0.3 + 0.55 * Math.abs(Math.sin(TAU * 6.5 * (t - battuta[iq].t)));
   const attori: Attore[] = s.personaggi.flatMap((pr, i) => {
     const p = cast.get(pr.id);
-    const tlA = pr.posa === "cade" && giaCaduto(pr.id) ? tl + 3 : tl; // resta a terra, non ricade
-    return p ? [{ p, posa: pr.posa, espr: pr.espressione, x: XPOS[pr.posizione] ?? 540, verso: vv[i], seme: i + s.n, tl: tlA }] : [];
+    if (!p) return [];
+    const x = XPOS[pr.posizione] ?? 540, verso = vv[i];
+    let posa: Posa = pr.posa;
+    let tlA = pr.posa === "cade" && giaCaduto(pr.id) ? tl + 3 : tl - ritardo(pr.posa); // chi e' gia' caduto resta a terra
+    let xs = x;
+    if (pr.posa === "cammina" || pr.posa === "zoppica" || pr.posa === "corre") {
+      // chi non c'era entra da fuori campo; chi c'era fa qualche passo; poi si ferma (niente camminata sul posto)
+      const entra = !prima?.personaggi.some((q) => q.id === pr.id);
+      const dur = pr.posa === "zoppica" ? 1.9 : pr.posa === "corre" ? 0.8 : 1.3;
+      const k = Math.min(1, Math.max(0, tl / dur)), kk = k * k * (3 - 2 * k);
+      xs = x - verso * (entra ? 620 : 100) * (1 - kk);
+      if (k >= 1 && pr.posa !== "corre") { posa = "fermo"; tlA = tl; }
+    }
+    if (pr.posa === "blocca") xs = x + verso * 40 * Math.min(1, Math.max(0, tlA / 0.3));
+    const versoEff = (pr.posa === "si_gira" && tlA < 0.2 ? -verso : verso) as 1 | -1;
+    return [{ p, id: pr.id, posa, espr: pr.espressione, x, xs, verso: versoEff, seme: i + s.n, tl: tlA, parlando: pr.id === parlante ? bocca : 0 }];
   });
-  const lista = riprese(s, attori.length);
+  const lista = riprese(s, attori.map((a) => a.id), parlante);
   const r = lista.find((x) => t >= x.da && t < x.a) ?? lista[lista.length - 1];
   const corre = attori.some((a) => a.posa === "corre");
   const { ch, bg } = camere(r, attori, t, tl, corre);
@@ -122,7 +167,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
   const bgCam = notifica ? { ...bg, blur: Math.max(bg.blur, 6) } : bg;
 
   // oggetti di scena
-  const seduti = attori.filter((a) => a.posa === "seduto");
+  const seduti = attori.filter((a) => a.posa === "seduto" || a.posa === "alzati");
   const calciatore = attori.find((a) => a.posa === "calcia");
   const lanciatore = attori.find((a) => a.posa === "lancia");
   const bersaglio = lanciatore ? attori.find((a) => a !== lanciatore) : undefined;
@@ -136,10 +181,25 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
           return <rect key={i} x={1180 - sp} y={y} width={160 + (i % 2) * 90} height={6} rx={3} fill="#FFFFFF" opacity={0.28} />;
         })}
         {attori.map((a, i) => (
-          <g key={i} transform={`translate(${a.x} ${TERRA}) scale(${a.verso * (a.p.stile.altezza ?? 1)} ${a.p.stile.altezza ?? 1})`}>
-            <Omino p={a.p} posa={a.posa} espr={a.espr} t={t} tl={a.tl} seme={a.seme} verso={a.verso} />
+          <g key={i} transform={`translate(${a.xs} ${TERRA}) scale(${a.verso * (a.p.stile.altezza ?? 1)} ${a.p.stile.altezza ?? 1})`}>
+            <Omino p={a.p} posa={a.posa} espr={a.espr} t={t} tl={a.tl} seme={a.seme} verso={a.verso} parlando={a.parlando} />
           </g>
         ))}
+        {/* lampo d'impatto quando il ginocchio cede (la caduta parte a 0,15 s, il contatto e' a ~0,5 s) */}
+        {attori.filter((a) => a.posa === "cade").map((a, i) => {
+          const d = a.tl - 0.5;
+          if (d < 0 || d > 0.35) return null;
+          const k = d / 0.35, sc = 0.6 + 0.8 * Math.sin(Math.PI * Math.min(1, k * 1.4));
+          const punte = Array.from({ length: 16 }, (_, j) => {
+            const rr = j % 2 ? 26 : 62, g = (j / 16) * TAU;
+            return `${Math.cos(g) * rr},${Math.sin(g) * rr}`;
+          }).join(" ");
+          return (
+            <g key={`b${i}`} transform={`translate(${a.xs + a.verso * 34} ${TERRA - 150}) scale(${sc})`} opacity={1 - k * 0.6}>
+              <polygon points={punte} fill="#FFE27A" stroke="#2A1E18" strokeWidth={6} strokeLinejoin="round" />
+            </g>
+          );
+        })}
         {calciatore && (() => {
           const d = tl - ISTANTE_CALCIO;
           const x0 = calciatore.x + calciatore.verso * 62;
@@ -163,6 +223,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
       ) : (<>
         <Sfondo luogo={props.luoghi[s.luogo]} cam={bgCam} />
         {mondo}
+        <div style={{ position: "absolute", inset: 0, background: TINTE[props.luoghi[s.luogo]?.tipo ?? ""] ?? "transparent" }} />
         {notifica && <div style={{ position: "absolute", inset: 0, background: "rgba(8,10,14,.35)" }} />}
       </>)}
 
@@ -181,10 +242,10 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
 
       {/* suono */}
       {props.voce && <Audio src={staticFile(props.voce)} />}
+      {/* musica sempre presente e bassa: «silenzio» vuol dire solo nessun effetto */}
       <Audio src={staticFile("suoni/musica.mp3")} volume={(f) => {
         const ft = f / fps;
-        const silenzio = scene.find((x) => ft >= x.da && ft < x.a)?.suono === "silenzio";
-        return silenzio ? 0.02 : 0.085 * Math.min(1, ft / 1.2) * Math.min(1, (props.durata - ft) / 1.2);
+        return 0.075 * Math.min(1, ft / 1.2) * Math.min(1, Math.max(0, props.durata - ft) / 1.2);
       }} />
       {scene.map((x, i) => {
         const da = Math.round(x.da * fps), lungo = Math.max(1, Math.round((x.a - x.da) * fps));
@@ -197,6 +258,12 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
             {file[x.suono] && (
               <Sequence from={da + Math.round((x.suono === "calcio_pallone" && calcia ? ISTANTE_CALCIO : 0.1) * fps)} durationInFrames={Math.round(3.5 * fps)} layout="none">
                 <Audio src={staticFile(`suoni/${file[x.suono]}.mp3`)} volume={0.4} />
+              </Sequence>
+            )}
+            {x.personaggi.some((p) => p.posa === "cade") && !(scene[i - 1]?.personaggi.some((q) => q.posa === "cade")) && (
+              <Sequence from={Math.round((x.chiave_t ?? x.da + 0.5) * fps)} durationInFrames={Math.round(2 * fps)} layout="none">
+                <Audio src={staticFile("suoni/colpo.mp3")} volume={0.45} />
+                <Audio src={staticFile("suoni/calcio_pallone.mp3")} volume={0.35} />
               </Sequence>
             )}
             {calcia && x.suono !== "calcio_pallone" && (

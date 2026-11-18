@@ -14,7 +14,8 @@ from pathlib import Path
 import edge_tts
 
 VOCI = {"it": "it-IT-DiegoNeural", "en": "en-US-AndrewNeural"}
-POSE = {"fermo", "seduto", "cammina", "zoppica", "corre", "calcia", "cade", "a_terra", "esulta", "indica", "braccia_conserte", "ride", "parla", "fissa", "lancia"}
+POSE = {"fermo", "seduto", "alzati", "cammina", "zoppica", "corre", "calcia", "cade", "a_terra", "esulta", "indica", "braccia_conserte",
+        "ride", "parla", "fissa", "lancia", "si_gira", "blocca"}
 ESPRESSIONI = {"neutra", "felice", "arrabbiata", "triste", "sorpresa", "spaventata", "sprezzante", "dolore", "determinata"}
 INQUADRATURE = {"campo_largo", "piano_medio", "primo_piano", "dall_alto"}
 CARTELLI = {"badge", "contatore", "tabellone", "notifica", "lavagna", "nome", "scelta"}
@@ -94,6 +95,26 @@ def tipo_luogo(lg: dict) -> str:
     return next((v for k, v in regole if k in testo), "stadio")
 
 
+def chi_parla(s: dict, personaggi: list[dict]) -> str | None:
+    """chi dice la battuta tra virgolette: il personaggio nominato per ultimo prima delle virgolette"""
+    v = s.get("voce", "")
+    if "«" not in v and "“" not in v:
+        return None
+    prima = norm(v.split("«")[0].split("“")[0])
+    presenti = {p["id"] for p in s.get("personaggi") or []}
+    migliore = None
+    for pg in personaggi:
+        if pg["id"] not in presenti:
+            continue
+        nomi = {norm(pg["id"])} | {norm(x) for x in re.findall(r"[A-Za-zÀ-ÿ]+", pg.get("nome", ""))}
+        if pg["id"] == "mister":
+            nomi |= {"mister", "allenatore"}
+        pos = max((prima.rfind(n) for n in nomi if len(n) > 2), default=-1)
+        if pos >= 0 and (migliore is None or pos > migliore[0]):
+            migliore = (pos, pg["id"])
+    return migliore[1] if migliore else None
+
+
 def controlla(sb: dict) -> None:
     scene = sb.get("scene") or []
     if not scene:
@@ -148,9 +169,15 @@ def main(percorso: str, lingua: str, velocita: str) -> None:
     # parole da mostrare, con la scena di appartenenza e i loro pezzi per l'allineamento
     parole = []  # {scena, testo, toks, fine_frase}
     for si, s in enumerate(scene_in):
+        dentro = False  # dentro una battuta tra virgolette: la bocca di chi parla si muove solo li'
         for w in s["voce"].split():
+            if "«" in w or "“" in w:
+                dentro = True
             if da_mostrare(w) or pezzi_di(w):
-                parole.append({"scena": si, "testo": da_mostrare(w), "toks": pezzi_di(w), "fine": bool(PUNTEGGIATURA_FINE.search(w)), "t": None})
+                parole.append({"scena": si, "testo": da_mostrare(w), "toks": pezzi_di(w), "fine": bool(PUNTEGGIATURA_FINE.search(w)),
+                               "t": None, "q": dentro})
+            if "»" in w or "”" in w:
+                dentro = False
     n_parole = sum(1 for p in parole if p["toks"])
     if not 85 <= n_parole <= 125:
         avvisi.append(f"{n_parole} parole nella voce (previste 100-115)")
@@ -206,9 +233,12 @@ def main(percorso: str, lingua: str, velocita: str) -> None:
         for gi, g in enumerate(gruppi):
             fine = gruppi[gi + 1][0]["t"] if gi + 1 < len(gruppi) else a
             pezzi_scena.append({"da": round(g[0]["t"], 3), "a": round(fine, 3), "parole": [
-                {"w": p["testo"], "t": round(p["t"], 3), "chiave": bool(chiave and set(p["toks"]) & chiave)} for p in g]})
+                {"w": p["testo"], "t": round(p["t"], 3), "chiave": bool(chiave and set(p["toks"]) & chiave), "q": p["q"]} for p in g]})
         c = s.get("cartello")
+        primo_chiave = next((p["t"] for p in parole if p["scena"] == si and chiave and set(p["toks"]) & chiave), None)
         scene.append({"n": s.get("n", si + 1), "da": round(da, 3), "a": round(a, 3), "luogo": s.get("luogo", ""),
+                      "chiave_t": round(primo_chiave, 3) if primo_chiave is not None else None,
+                      "parlante": chi_parla(s, sb.get("personaggi", [])),
                       "inquadratura": s["inquadratura"], "personaggi": s["personaggi"],
                       "cartello": ({"tipo": c["tipo"], "testo": c["testo"], "valore": c["valore"]} if c else None),
                       "suono": s["suono"], "pezzi": pezzi_scena})

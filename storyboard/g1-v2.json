@@ -135,7 +135,7 @@
    "personaggi": [
     {
      "id": "mister",
-     "posa": "parla",
+     "posa": "si_gira",
      "espressione": "determinata",
      "posizione": "sinistra"
     },
@@ -168,7 +168,7 @@
     },
     {
      "id": "tu",
-     "posa": "fermo",
+     "posa": "alzati",
      "espressione": "determinata",
      "posizione": "destra"
     }
@@ -202,7 +202,7 @@
    "personaggi": [
     {
      "id": "razo",
-     "posa": "parla",
+     "posa": "blocca",
      "espressione": "arrabbiata",
      "posizione": "sinistra"
     },
@@ -252,7 +252,7 @@
    "personaggi": [
     {
      "id": "razo",
-     "posa": "parla",
+     "posa": "indica",
      "espressione": "arrabbiata",
      "posizione": "sinistra"
     },

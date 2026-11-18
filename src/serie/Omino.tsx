@@ -44,7 +44,7 @@ export function angoli(posa: Posa, t: number, tl: number): Angoli {
     case "cammina": {
       const ph = (TAU * t) / 1.05;
       return { ...a, busto: 4, cA: 24 * Math.sin(ph), cP: -24 * Math.sin(ph), kA: -38 * Math.max(0, Math.cos(ph)),
-        kP: -38 * Math.max(0, -Math.cos(ph)), bA: -20 * Math.sin(ph), bP: 20 * Math.sin(ph), gA: 16, gP: 16, dx: Math.min(70 * tl, 120) };
+        kP: -38 * Math.max(0, -Math.cos(ph)), bA: -20 * Math.sin(ph), bP: 20 * Math.sin(ph), gA: 16, gP: 16 };
     }
     case "zoppica": {
       // passo lento e storto: la gamba davanti (quella ferita) si piega poco e il corpo ci cade sopra
@@ -52,8 +52,25 @@ export function angoli(posa: Posa, t: number, tl: number): Angoli {
       const appoggio = Math.max(0, Math.sin(ph)); // quando carica la gamba ferita
       return { ...a, busto: 8 + 6 * appoggio, testa: 10, cA: 14 * Math.sin(ph), cP: -26 * Math.sin(ph), kA: -6,
         kP: -42 * Math.max(0, -Math.cos(ph)), bA: 30 + 10 * appoggio, gA: 70, bP: -10 * Math.sin(ph), gP: 14,
-        dx: Math.min(45 * tl, 90) };
+      };
     }
+    case "alzati": {
+      // da seduto a in piedi, sporgendosi in avanti a meta movimento
+      const k = morbido(clamp((tl - 0.05) / 0.7, 0, 1));
+      const sed: Angoli = { ...a, anca: -140, cA: 88, kA: -88, cP: 84, kP: -86, busto: -2, bA: 34, gA: 50, bP: 28, gP: 54 };
+      const m = mescola(sed, { ...a, anca: ANCA_Y }, k);
+      m.busto += 22 * Math.sin(Math.PI * k);
+      if (k >= 1) m.anca = null;
+      return m;
+    }
+    case "blocca": {
+      // mezzo passo e braccio alzato a palmo aperto davanti a se
+      const k = uscita(clamp((tl - 0.05) / 0.3, 0, 1));
+      return { ...a, busto: 2 + 8 * k, testa: -2, bA: lerp(4, 84, k), gA: lerp(12, -4, k), bP: lerp(-4, 20, k), gP: lerp(10, 40, k),
+        cA: lerp(4, 16, k), cP: lerp(-3, -10, k) };
+    }
+    case "si_gira":
+      return angoli("parla", t, tl);
     case "a_terra": {
       // gia' a terra, si tiene il ginocchio e dondola dal dolore
       const d = Math.sin((TAU * t) / 1.1);
@@ -132,10 +149,22 @@ export function scurisci(hex: string, k: number): string {
 const Linea: React.FC<{ a: P; b: P; w: number; c: string }> = ({ a, b, w, c }) => (
   <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={c} strokeWidth={w} strokeLinecap="round" />
 );
+// contorno: ogni pezzo ha un bordo piu scuro del suo colore, cosi gli omini si staccano dagli sfondi illustrati
+const BORDO = 7;
+const bordo = (c: string) => scurisci(c, 0.55);
+type Tratto = [P, P, number, string];
+/** prima tutti i contorni, poi tutti i riempimenti: i pezzi di uno stesso arto si fondono senza linee in mezzo */
+const Arto: React.FC<{ tratti: Tratto[] }> = ({ tratti }) => (<>
+  {tratti.map(([a, b, w, c], i) => <Linea key={`o${i}`} a={a} b={b} w={w + BORDO} c={bordo(c)} />)}
+  {tratti.map(([a, b, w, c], i) => <Linea key={`f${i}`} a={a} b={b} w={w} c={c} />)}
+</>);
 
 // ------------------------------------------------------------------ testa
 
-const Capelli: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto: string }> = ({ stile, colore, berretto }) => {
+const Capelli: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto: string }> = (props) => (
+  <g stroke={bordo(props.colore)} strokeWidth={4} strokeLinejoin="round"><CapelliForma {...props} /></g>
+);
+const CapelliForma: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto: string }> = ({ stile, colore, berretto }) => {
   const corti = "M -58 8 C -66 -40 -30 -70 6 -66 C 40 -64 58 -42 60 -18 C 46 -30 30 -34 14 -32 C -6 -30 -30 -24 -42 -6 C -46 2 -50 10 -58 8 Z";
   switch (stile.capelli) {
     case "rasati": return <path d={corti} fill={colore} opacity={0.5} />;
@@ -162,10 +191,22 @@ const Capelli: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto:
   }
 };
 
-const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number }> = ({ e, bocca, aperti }) => {
+const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: string; sguardo: number }> = ({ e, bocca, aperti, pelle, sguardo }) => {
   const occhio = "#1C1613";
   const grandi = e === "sorpresa" || e === "spaventata";
-  const ry = (grandi ? 7 : 5.6) * aperti * (e === "dolore" ? 0.25 : e === "determinata" ? 0.7 : 1);
+  const rx = grandi ? 10 : 8.5, ry = rx * 1.12 * Math.max(0.08, aperti);
+  const pupilla = grandi ? 3.6 : 4.6, px = 1.5 + 2 * sguardo;
+  const occhi = e === "dolore"
+    ? <g stroke={occhio} strokeWidth={4.5} strokeLinecap="round" fill="none"><path d="M 2 -3 Q 10 -11 18 -3" /><path d="M 26 -3 Q 34 -11 42 -3" /></g>
+    : <g>
+        {[10, 34].map((cx) => (
+          <g key={cx}>
+            <ellipse cx={cx} cy={-4} rx={rx} ry={ry} fill="#FBFAF6" stroke={scurisci(pelle, 0.55)} strokeWidth={2} />
+            {aperti > 0.3 && <circle cx={cx + px} cy={-3} r={pupilla} fill={occhio} />}
+            {e === "determinata" && aperti > 0.3 && <rect x={cx - rx - 1} y={-4 - ry - 1} width={rx * 2 + 2} height={ry * 0.85} fill={pelle} />}
+          </g>
+        ))}
+      </g>;
   // sopracciglia: [x1, y1, x2, y2] per sinistra e destra (x cresce verso il naso a destra)
   const s: Record<Espressione, [number[], number[]]> = {
     neutra: [[2, -20, 16, -21], [28, -21, 42, -20]],
@@ -192,13 +233,11 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number }> = ({ e
   };
   return (
     <g>
-      <g stroke="#2A1E18" strokeWidth={6} strokeLinecap="round">
+      {occhi}
+      <g stroke="#2A1E18" strokeWidth={6.5} strokeLinecap="round" transform="translate(0 -5)">
         <line x1={b1[0]} y1={b1[1]} x2={b1[2]} y2={b1[3]} />
         <line x1={b2[0]} y1={b2[1]} x2={b2[2]} y2={b2[3]} />
       </g>
-      {e === "spaventata" && <><circle cx="10" cy="-4" r="9" fill="#fff" /><circle cx="34" cy="-4" r="9" fill="#fff" /></>}
-      <ellipse cx="10" cy="-4" rx={grandi ? 6 : 5.4} ry={Math.max(0.8, ry)} fill={occhio} />
-      <ellipse cx="34" cy="-4" rx={grandi ? 6 : 5.4} ry={Math.max(0.8, ry)} fill={occhio} />
       {bocca > 0.08
         ? <ellipse cx="24" cy="28" rx={9 + bocca * 3} ry={2 + bocca * 12} fill="#5A2620" />
         : <g stroke="#5A2620" strokeWidth={5} strokeLinecap="round" fill="none">{bocche[e]}</g>}
@@ -208,11 +247,12 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number }> = ({ e
 
 // ------------------------------------------------------------------ personaggio
 
-type Props = { p: Personaggio; posa: Posa; espr: Espressione; t: number; tl: number; seme: number; verso: 1 | -1 };
+type Props = { p: Personaggio; posa: Posa; espr: Espressione; t: number; tl: number; seme: number; verso: 1 | -1;
+  parlando?: number; sguardo?: number };
 
 /** disegnato con i piedi in (0, 0) e rivolto a destra: chi lo usa applica posizione, scala e verso
  *  (verso serve solo a non scrivere il numero di maglia allo specchio) */
-export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso }) => {
+export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parlando = 0, sguardo = 1 }) => {
   const A = angoli(posa, t + seme * 0.37, tl);
   const c = p.colori;
   const st = p.stile;
@@ -236,6 +276,8 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso }) =>
 
   const lampeggio = ((t + seme * 1.3) % 3.7) < 0.11 ? 0.1 : 1;
   const aperti = Math.min(A.palpebre, lampeggio);
+  // la bocca si apre solo a chi sta dicendo la battuta (o a chi ride ed esulta)
+  const bocca = posa === "ride" || posa === "esulta" ? A.bocca : parlando;
 
   const gamba = (an: P, gi: P, ca: P, dietro: boolean) => {
     const k = dietro ? 0.22 : 0;
@@ -243,15 +285,10 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso }) =>
     const angPiede = Math.atan2(ca[1] - gi[1], ca[0] - gi[0]) - Math.PI / 2; // la scarpa segue lo stinco
     return (
       <g>
-        {lunghe ? (<>
-          <Linea a={an} b={gi} w={30} c={pant} /><Linea a={gi} b={ca} w={26} c={pant} />
-        </>) : (<>
-          <Linea a={an} b={gi} w={25} c={pelle} /><Linea a={gi} b={ca} w={22} c={pelle} />
-          <Linea a={lungo(gi, ca, 0.38)} b={ca} w={25} c={calza} />
-          <Linea a={an} b={lungo(an, gi, 0.55)} w={33} c={pant} />
-        </>)}
+        <Arto tratti={lunghe ? [[an, gi, 30, pant], [gi, ca, 26, pant]]
+          : [[an, gi, 25, pelle], [gi, ca, 22, pelle], [lungo(gi, ca, 0.38), ca, 25, calza], [an, lungo(an, gi, 0.55), 33, pant]]} />
         <g transform={`translate(${ca[0]} ${ca[1]}) rotate(${(angPiede * 180) / Math.PI})`}>
-          <rect x={-12} y={-2} width={50} height={PIEDE_H + 8} rx={9} fill={scarpa} />
+          <rect x={-12} y={-2} width={50} height={PIEDE_H + 8} rx={9} fill={scarpa} stroke={bordo(scarpa)} strokeWidth={3.5} />
           {!lunghe && <rect x={-12} y={PIEDE_H + 2} width={50} height={4} rx={2} fill={scurisci(scarpa, 0.35)} />}
         </g>
       </g>
@@ -263,14 +300,10 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso }) =>
     const pelle = scurisci(c.pelle, k), manica = scurisci(c.maglia, k);
     return (
       <g>
-        {lunghe ? (<>
-          <Linea a={sp} b={go} w={25} c={manica} /><Linea a={go} b={ma} w={22} c={manica} />
-        </>) : (<>
-          <Linea a={sp} b={go} w={21} c={pelle} /><Linea a={go} b={ma} w={19} c={pelle} />
-          <Linea a={sp} b={lungo(sp, go, 0.45)} w={27} c={manica} />
-        </>)}
+        <Arto tratti={lunghe ? [[sp, go, 25, manica], [go, ma, 22, manica]]
+          : [[sp, go, 21, pelle], [go, ma, 19, pelle], [sp, lungo(sp, go, 0.45), 27, manica]]} />
         {!dietro && st.fascia && <Linea a={lungo(sp, go, 0.16)} b={lungo(sp, go, 0.3)} w={29} c="#F2C230" />}
-        <circle cx={ma[0]} cy={ma[1]} r={13.5} fill={pelle} />
+        <circle cx={ma[0]} cy={ma[1]} r={14.5} fill={pelle} stroke={bordo(pelle)} strokeWidth={3.5} />
       </g>
     );
   };
@@ -294,7 +327,10 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso }) =>
         {gamba(anA, ginA, cavA, false)}
         {/* bacino: pantaloncini o pantaloni */}
         <path d={`M ${pt(zero, 10, -30)} L ${pt(zero, 10, 32)} L ${pt(zero, -26, 30)} L ${pt(zero, -26, -28)} Z`}
+          fill={c.pantaloni} stroke={bordo(c.pantaloni)} strokeWidth={10 + BORDO} strokeLinejoin="round" />
+        <path d={`M ${pt(zero, 10, -30)} L ${pt(zero, 10, 32)} L ${pt(zero, -26, 30)} L ${pt(zero, -26, -28)} Z`}
           fill={c.pantaloni} stroke={c.pantaloni} strokeWidth={10} strokeLinejoin="round" />
+        <path d={busto} fill={c.maglia} stroke={bordo(c.maglia)} strokeWidth={12 + BORDO} strokeLinejoin="round" />
         <path d={busto} fill={c.maglia} stroke={c.maglia} strokeWidth={12} strokeLinejoin="round" />
         <path d={ombra} fill="#000" opacity={0.14} />
         {st.pettorina && <path d={pettorina} fill="#CDF73A" stroke="#CDF73A" strokeWidth={6} strokeLinejoin="round" opacity={0.96} />}
@@ -308,13 +344,15 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso }) =>
           </g>
         )}
         {/* collo e testa */}
-        <Linea a={pt(collo, -6, 0)} b={lungo(collo, testaC, 0.55)} w={26} c={scurisci(c.pelle, 0.12)} />
-        <g transform={`translate(${testaC[0]} ${testaC[1]}) rotate(${b + A.testa})`}>
-          <circle cx={-40} cy={6} r={11} fill={scurisci(c.pelle, 0.12)} />
-          <circle cx={0} cy={0} r={R_TESTA} fill={c.pelle} />
+        <Arto tratti={[[pt(collo, -6, 0), lungo(collo, testaC, 0.55), 26, scurisci(c.pelle, 0.12)]]} />
+        <g transform={`translate(${testaC[0]} ${testaC[1]}) rotate(${b + A.testa}) scale(1.1)`}>
+          <circle cx={-40} cy={6} r={11} fill={scurisci(c.pelle, 0.12)} stroke={bordo(c.pelle)} strokeWidth={3.5} />
+          <circle cx={0} cy={0} r={R_TESTA + 2} fill={bordo(c.pelle)} />
+          <circle cx={0} cy={0} r={R_TESTA - 1.5} fill={scurisci(c.pelle, 0.12)} />
+          <circle cx={5} cy={-4} r={R_TESTA - 6} fill={c.pelle} />
           {st.barba && <path d="M -42 18 C -32 58 30 66 52 22 C 42 36 12 42 -10 38 C -24 34 -34 28 -42 18 Z" fill={c.capelli} opacity={0.92} />}
           <Capelli stile={st} colore={c.capelli} berretto={c.maglia} />
-          <Faccia e={espr} bocca={A.bocca} aperti={aperti} />
+          <Faccia e={espr} bocca={bocca} aperti={aperti} pelle={c.pelle} sguardo={sguardo} />
           {st.baffi && <path d="M 12 17 C 20 10 34 10 42 17 C 34 21 20 21 12 17 Z" fill={c.capelli} />}
           {st.occhiali && <g fill="none" stroke="#1F1F22" strokeWidth={4}><circle cx="10" cy="-4" r="12" /><circle cx="35" cy="-4" r="12" /><path d="M 22 -4 L 23 -4 M -2 -6 L -30 -2" /></g>}
         </g>

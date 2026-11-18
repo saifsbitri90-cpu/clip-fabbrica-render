@@ -1,7 +1,8 @@
 // Formato della puntata: lo storyboard (scritto da ChatGPT o dal batch di Claude) passa da
 // strumenti/serie_voce.py, che aggiunge voce, tempi di ogni parola e scritte a pezzi -> public/props.json.
 
-export type Posa = "fermo" | "seduto" | "cammina" | "zoppica" | "corre" | "calcia" | "cade" | "a_terra" | "esulta" | "indica"
+export type Posa = "fermo" | "seduto" | "alzati" | "cammina" | "zoppica" | "corre" | "calcia" | "cade" | "a_terra" | "esulta" | "indica"
+  | "si_gira" | "blocca"
   | "braccia_conserte" | "ride" | "parla" | "fissa" | "lancia";
 export type Espressione = "neutra" | "felice" | "arrabbiata" | "triste" | "sorpresa" | "spaventata" | "sprezzante" | "dolore" | "determinata";
 export type Inquadratura = "campo_largo" | "piano_medio" | "primo_piano" | "dall_alto";
@@ -26,11 +27,13 @@ export type Colori = { pelle: string; capelli: string; maglia: string; pantaloni
 export type Personaggio = { id: string; nome: string; ruolo: string; colori: Colori; stile: Stile };
 export type Presenza = { id: string; posa: Posa; espressione: Espressione; posizione: Posizione };
 export type Cartello = { tipo: TipoCartello; testo: string; valore: string } | null;
-export type Parola = { w: string; t: number; chiave: boolean };
+export type Parola = { w: string; t: number; chiave: boolean; q?: boolean }; // q = dentro una battuta tra virgolette
 export type Pezzo = { da: number; a: number; parole: Parola[] };
 export type Scena = {
   n: number; da: number; a: number; luogo: string; inquadratura: Inquadratura;
   personaggi: Presenza[]; cartello: Cartello; suono: Suono; pezzi: Pezzo[];
+  chiave_t?: number; // quando viene detta la parola chiave: le azioni partono li'
+  parlante?: string | null; // chi dice la battuta tra virgolette
 };
 export type Luogo = { img: string | null; sfocata?: string | null; tipo: string };
 
