@@ -1,5 +1,25 @@
 import React from "react";
+import { Composition } from "remotion";
+import { Puntata } from "./serie/Puntata";
+import { propsPuntataVuote, type PropsPuntata } from "./serie/tipi";
 
 // 18/11/2026: il 3D (Voxel, VoxelHD, Personaggio Quaternius) è in archivio-3d/, fuori dal render.
-// Qui entreranno le composizioni 2D della serie a puntate, dopo che Saif sceglie il modello da imitare.
-export const Radice: React.FC = () => <></>;
+// Serie a puntate in 2D: la durata arriva da public/props.json (strumenti/serie_voce.py).
+const FPS = 30;
+
+export const Radice: React.FC = () => (
+  <>
+    <Composition
+      id="Puntata"
+      component={Puntata}
+      width={1080}
+      height={1920}
+      fps={FPS}
+      durationInFrames={FPS * 10}
+      defaultProps={propsPuntataVuote}
+      calculateMetadata={({ props }: { props: PropsPuntata }) => ({
+        durationInFrames: Math.max(FPS * 3, Math.ceil(props.durata * FPS)),
+      })}
+    />
+  </>
+);

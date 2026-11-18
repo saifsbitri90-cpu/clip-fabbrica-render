@@ -1,0 +1,41 @@
+{
+  "giorno": 1,
+  "badge": "GIORNO 1 · STRADA PER LA 10",
+  "personaggi": [
+    {"id": "tu", "nome": "Giò", "ruolo": "Ultimo della panchina", "aspetto": "Diciannovenne esile, capelli ricci e scompigliati", "colori": {"pelle": "#e0ac69", "capelli": "#2d1b12", "maglia": "#1e5a3c", "pantaloni": "#ffffff", "scarpe": "#d9d9d9"}, "dettaglio": "Maglia numero 22 sempre troppo larga"},
+    {"id": "razo", "nome": "Razo", "ruolo": "Fuoriclasse numero 10", "aspetto": "Ventitreenne atletico, ciuffo nero tirato all'indietro", "colori": {"pelle": "#c68e5a", "capelli": "#0d0d0d", "maglia": "#1e5a3c", "pantaloni": "#ffffff", "scarpe": "#f2c200"}, "dettaglio": "Numero 10 dorato, cavigliera arancione"},
+    {"id": "mister", "nome": "Villani", "ruolo": "Allenatore", "aspetto": "Sessantenne tozzo, giacca a vento grigia", "colori": {"pelle": "#f0c8a0", "capelli": "#9a9a9a", "maglia": "#2b2d42", "pantaloni": "#2b2d42", "scarpe": "#3a3a3a"}, "dettaglio": "Fischietto al collo, cartellina sotto il braccio"}
+  ],
+  "luoghi": [
+    {"id": "stadio", "descrizione": "Campo del piccolo stadio comunale di Porto Albo, sera, tribune piene", "prompt_sfondo_en": "flat vector illustration, small italian football stadium at dusk, green pitch with white lines, packed stands as colorful abstract dots, glowing floodlights, muted colors, soft fog, layered depth, vertical composition, no people, no text, no logos"},
+    {"id": "panchina", "descrizione": "Panchina coperta a bordo campo, sediolini di plastica, bottiglie d'acqua, terra bagnata", "prompt_sfondo_en": "flat vector illustration, football team dugout under a small covered stand, plastic seats, water bottles, muddy ground, evening sideline light, muted colors, soft fog, layered depth, vertical composition, no people, no text, no logos"},
+    {"id": "tunnel_uscita", "descrizione": "Tunnel di cemento buio che sbuca sul rettangolo verde, luce abbagliante in fondo", "prompt_sfondo_en": "flat vector illustration, dark concrete player tunnel leading to a bright green football pitch, light at the end, pipes on the ceiling, muted colors, soft fog, layered depth, vertical composition, no people, no text, no logos"}
+  ],
+  "scene": [
+    {"n": 1, "luogo": "stadio", "inquadratura": "campo_largo", "voce": "Stadio gremito, minuto settantotto: state perdendo due a zero.", "parola_chiave": "settantotto",
+     "personaggi": [], "cartello": {"tipo": "tabellone", "testo": "US PORTO ALBO 0-2 ATLETICO ROVERE", "valore": "78'"}, "suono": "folla"},
+    {"n": 2, "luogo": "stadio", "inquadratura": "piano_medio", "voce": "Il nostro dieci, Razo, atterra dopo un brutto fallo.", "parola_chiave": "Razo",
+     "personaggi": [{"id": "razo", "posa": "cade", "espressione": "arrabbiata", "posizione": "centro"}], "cartello": null, "suono": "calcio_pallone"},
+    {"n": 3, "luogo": "stadio", "inquadratura": "primo_piano", "voce": "Si stringe il ginocchio e guarda la panchina.", "parola_chiave": "ginocchio",
+     "personaggi": [{"id": "razo", "posa": "seduto", "espressione": "sprezzante", "posizione": "centro"}], "cartello": null, "suono": "silenzio"},
+    {"n": 4, "luogo": "panchina", "inquadratura": "piano_medio", "voce": "Il mister Villani si gira, e punta il dito proprio su di te.", "parola_chiave": "dito",
+     "personaggi": [{"id": "mister", "posa": "indica", "espressione": "arrabbiata", "posizione": "sinistra"}, {"id": "tu", "posa": "seduto", "espressione": "spaventata", "posizione": "destra"}], "cartello": null, "suono": "whoosh"},
+    {"n": 5, "luogo": "panchina", "inquadratura": "primo_piano", "voce": "Sei l'ultimo della panchina da tre anni. Adesso tocca a te.", "parola_chiave": "panchina",
+     "personaggi": [{"id": "tu", "posa": "seduto", "espressione": "sorpresa", "posizione": "centro"}], "cartello": null, "suono": "notifica"},
+    {"n": 6, "luogo": "panchina", "inquadratura": "piano_medio", "voce": "Razo, zoppicando, ti afferra la maglia: «Se sbagli, sei finito.»", "parola_chiave": "maglia",
+     "personaggi": [{"id": "tu", "posa": "fermo", "espressione": "spaventata", "posizione": "sinistra"}, {"id": "razo", "posa": "cammina", "espressione": "sprezzante", "posizione": "destra"}], "cartello": null, "suono": "fischi_stadio"},
+    {"n": 7, "luogo": "panchina", "inquadratura": "dall_alto", "voce": "La lavagna dice: fascia sinistra, attacca sempre, non difendere.", "parola_chiave": "fascia",
+     "personaggi": [], "cartello": {"tipo": "lavagna", "testo": "RAZO FUORI → ENTRI TU", "valore": "FASCIA SX"}, "suono": "silenzio"},
+    {"n": 8, "luogo": "panchina", "inquadratura": "primo_piano", "voce": "Contatore fermo a zero: novanta secondi per dimostrare tutto.", "parola_chiave": "zero",
+     "personaggi": [{"id": "tu", "posa": "fermo", "espressione": "sorpresa", "posizione": "centro"}], "cartello": {"tipo": "contatore", "testo": "MINUTI GIOCATI", "valore": "0"}, "suono": "whoosh"},
+    {"n": 9, "luogo": "panchina", "inquadratura": "piano_medio", "voce": "Poi Razo si slaccia la cavigliera: «Cinque minuti e rimonto io.»", "parola_chiave": "cavigliera",
+     "personaggi": [{"id": "razo", "posa": "parla", "espressione": "sprezzante", "posizione": "destra"}, {"id": "tu", "posa": "fermo", "espressione": "sorpresa", "posizione": "sinistra"}], "cartello": null, "suono": "boato"},
+    {"n": 10, "luogo": "panchina", "inquadratura": "primo_piano", "voce": "Il mister ti guarda, fischietto tra le labbra: fischia o ti siede?", "parola_chiave": "fischietto",
+     "personaggi": [{"id": "mister", "posa": "fissa", "espressione": "neutra", "posizione": "sinistra"}, {"id": "tu", "posa": "fermo", "espressione": "spaventata", "posizione": "destra"}], "cartello": null, "suono": "silenzio"},
+    {"n": 11, "luogo": "tunnel_uscita", "inquadratura": "piano_medio", "voce": "Tocca a te: entri tu o torna lui? Commenta A o B.", "parola_chiave": "entri",
+     "personaggi": [{"id": "tu", "posa": "cammina", "espressione": "sorpresa", "posizione": "centro"}], "cartello": {"tipo": "scelta", "testo": "A) ENTRI TU · B) TORNA RAZO", "valore": ""}, "suono": "folla"}
+  ],
+  "scelta": {"A": "Entri tu, ora.", "B": "Fai tornare Razo."},
+  "didascalia_post": "78', sotto 0-2, Razo a terra: il mister chiama l'ultimo della panchina. Ma il 10 si slaccia la cavigliera...\nA) Entri tu, ora. B) Fai tornare Razo.\nCommenta A o B.\nSerie animata di finzione.",
+  "commento_fissato": "Squadra A o squadra B? L'argomento migliore entra nella prossima puntata."
+}

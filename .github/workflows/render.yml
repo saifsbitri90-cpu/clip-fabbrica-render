@@ -34,7 +34,9 @@ jobs:
           pip install edge-tts==7.3.1 mutagen==1.47.0
       - name: Voce e controlli dello storyboard
         run: |
-          if [ "${{ inputs.composizione }}" = "VoxelHD" ]; then
+          if [ "${{ inputs.composizione }}" = "Puntata" ]; then
+            python strumenti/serie_voce.py "${{ inputs.storyboard }}"
+          elif [ "${{ inputs.composizione }}" = "VoxelHD" ]; then
             python strumenti/voce_hd.py "${{ inputs.storyboard }}"
           else
             python strumenti/voce.py "${{ inputs.storyboard }}"
@@ -51,9 +53,13 @@ jobs:
             -preset slow -pix_fmt yuv420p -af "loudnorm=I=-14:TP=-1.5:LRA=11" -c:a aac -b:a 192k -ar 48000 \
             -movflags +faststart out/video.mp4
           echo "RENDER_SECONDI=$(( $(date +%s) - start ))" >> "$GITHUB_STEP_SUMMARY"
+          # foglio dei fotogrammi: si guarda PRIMA di mandare il video a Saif
+          npx remotion ffmpeg -y -i out/video.mp4 -vf "fps=1.5,scale=216:-2,tile=10x8" -frames:v 1 out/foglio.jpg
           ls -la out/
       - uses: actions/upload-artifact@v4
         with:
           name: video
-          path: out/video.mp4
+          path: |
+            out/video.mp4
+            out/foglio.jpg
           retention-days: 3

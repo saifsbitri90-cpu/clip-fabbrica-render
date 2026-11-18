@@ -1,0 +1,42 @@
+{
+  "giorno": 1,
+  "badge": "GIORNO 1 · STRADA PER LA 10",
+  "personaggi": [
+    {"id": "tu", "nome": "Il Numero Zero", "ruolo": "Ultimo della panchina", "aspetto": "Fisico asciutto, capelli corti spettinati, sguardo determinato",
+     "colori": {"pelle": "#C58C68", "capelli": "#29201D", "maglia": "#E8E5DD", "pantaloni": "#242424", "scarpe": "#D9D9D9"}, "dettaglio": "Numero 27 sulla schiena"},
+    {"id": "leo", "nome": "Leo Vex", "ruolo": "Fuoriclasse, numero 10", "aspetto": "Capelli neri pettinati, fisico atletico, sorriso arrogante",
+     "colori": {"pelle": "#D29B79", "capelli": "#171717", "maglia": "#B91F32", "pantaloni": "#242424", "scarpe": "#E9E9E9"}, "dettaglio": "Fascia da capitano nera"},
+    {"id": "mister", "nome": "Miro Valli", "ruolo": "Allenatore", "aspetto": "Uomo robusto, capelli brizzolati, volto severo",
+     "colori": {"pelle": "#C58D6B", "capelli": "#777777", "maglia": "#252525", "pantaloni": "#171717", "scarpe": "#333333"}, "dettaglio": "Fischietto rosso al collo"}
+  ],
+  "luoghi": [
+    {"id": "panchina", "descrizione": "Panchina delle riserve a bordo campo", "prompt_sfondo_en": "Empty fictional lower league football stadium dugout, metal bench, wet grass, overcast sky, dramatic football atmosphere, flat vector illustration, muted colors, soft fog, layered depth, vertical composition, no people, no text, no logos"},
+    {"id": "campo", "descrizione": "Campo da calcio durante una partita serale", "prompt_sfondo_en": "Fictional small football stadium, green football pitch, distant empty stands, white goalposts, dramatic cloudy evening sky, flat vector illustration, muted colors, soft fog, layered depth, vertical composition, no people, no text, no logos"},
+    {"id": "spogliatoio", "descrizione": "Spogliatoio della squadra, con armadietti metallici", "prompt_sfondo_en": "Fictional modest football changing room, metal lockers, wooden benches, football boots on floor, tactical board on wall, cinematic overhead lighting, flat vector illustration, muted colors, soft fog, layered depth, vertical composition, no people, no text, no logos"}
+  ],
+  "scene": [
+    {"n": 1, "luogo": "campo", "inquadratura": "primo_piano", "voce": "Il tuo debutto dura esattamente zero secondi.", "parola_chiave": "zero",
+     "personaggi": [{"id": "tu", "posa": "seduto", "espressione": "triste", "posizione": "centro"}], "cartello": {"tipo": "badge", "testo": "GIORNO 1", "valore": "STRADA PER LA 10"}, "suono": "fischio"},
+    {"n": 2, "luogo": "panchina", "inquadratura": "campo_largo", "voce": "Sei ultimo in panchina, sotto una pioggia sottile.", "parola_chiave": "ultimo",
+     "personaggi": [{"id": "tu", "posa": "seduto", "espressione": "neutra", "posizione": "destra"}], "cartello": {"tipo": "contatore", "testo": "MINUTI GIOCATI", "valore": "0"}, "suono": "folla"},
+    {"n": 3, "luogo": "campo", "inquadratura": "primo_piano", "voce": "Davanti a te, Leo indossa la maglia numero dieci.", "parola_chiave": "dieci",
+     "personaggi": [{"id": "leo", "posa": "fermo", "espressione": "sprezzante", "posizione": "centro"}], "cartello": {"tipo": "nome", "testo": "LEO VEX", "valore": "NUMERO 10"}, "suono": "boato"},
+    {"n": 4, "luogo": "campo", "inquadratura": "piano_medio", "voce": "Segna da ogni posizione, poi ignora i compagni.", "parola_chiave": "ignora",
+     "personaggi": [{"id": "leo", "posa": "esulta", "espressione": "sprezzante", "posizione": "centro"}], "cartello": null, "suono": "folla"},
+    {"n": 5, "luogo": "campo", "inquadratura": "dall_alto", "voce": "Il tabellone mostra zero a uno, minuto settantadue.", "parola_chiave": "uno",
+     "personaggi": [], "cartello": {"tipo": "tabellone", "testo": "BRUMAVIA 0 - 1 OSPITI", "valore": "72:00"}, "suono": "silenzio"},
+    {"n": 6, "luogo": "campo", "inquadratura": "piano_medio", "voce": "L'allenatore ti chiama: Leo zoppica, serve un cambio.", "parola_chiave": "cambio",
+     "personaggi": [{"id": "mister", "posa": "indica", "espressione": "arrabbiata", "posizione": "sinistra"}, {"id": "leo", "posa": "cammina", "espressione": "arrabbiata", "posizione": "destra"}], "cartello": null, "suono": "fischio"},
+    {"n": 7, "luogo": "spogliatoio", "inquadratura": "dall_alto", "voce": "La lavagna indica il tuo ingresso al suo posto.", "parola_chiave": "ingresso",
+     "personaggi": [], "cartello": {"tipo": "lavagna", "testo": "NUMERO 10 → NUMERO 27", "valore": "SOSTITUZIONE"}, "suono": "whoosh"},
+    {"n": 8, "luogo": "panchina", "inquadratura": "primo_piano", "voce": "Ma Leo ti blocca: «Resta fuori, posso continuare».", "parola_chiave": "blocca",
+     "personaggi": [{"id": "leo", "posa": "indica", "espressione": "sprezzante", "posizione": "sinistra"}, {"id": "tu", "posa": "fermo", "espressione": "sorpresa", "posizione": "destra"}], "cartello": null, "suono": "silenzio"},
+    {"n": 9, "luogo": "panchina", "inquadratura": "piano_medio", "voce": "Poi il mister ti osserva, mentre la panchina trattiene il respiro. Il pubblico continua a chiedere il numero dieci.", "parola_chiave": "osserva",
+     "personaggi": [{"id": "mister", "posa": "fissa", "espressione": "neutra", "posizione": "sinistra"}, {"id": "tu", "posa": "fermo", "espressione": "sorpresa", "posizione": "destra"}], "cartello": {"tipo": "notifica", "testo": "OSSERVATORI PRESENTI", "valore": "TI STANNO GUARDANDO"}, "suono": "notifica"},
+    {"n": 10, "luogo": "campo", "inquadratura": "primo_piano", "voce": "Gli osservatori guardano proprio te: entrare significa rischiare tutto. Rifiutare protegge Leo, ma perdi l'occasione oggi.", "parola_chiave": "rischiare",
+     "personaggi": [{"id": "tu", "posa": "fermo", "espressione": "sorpresa", "posizione": "centro"}], "cartello": {"tipo": "scelta", "testo": "IL TUO FUTURO", "valore": "A O B?"}, "suono": "whoosh"}
+  ],
+  "scelta": {"A": "Entri e prendi il numero 10", "B": "Rinunci e proteggi Leo"},
+  "didascalia_post": "Sei finalmente vicino al tuo debutto.\nMa Leo vuole impedirti di entrare.\n\nA: Entri e prendi il numero 10.\nB: Rinunci e proteggi Leo.\n\nCommenta A o B.\n\nSerie animata di finzione.",
+  "commento_fissato": "Squadra A o squadra B? L'argomento migliore entra nella prossima puntata."
+}
