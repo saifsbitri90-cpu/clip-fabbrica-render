@@ -1,0 +1,40 @@
+name: suoni
+
+# Una tantum: genera gli effetti sonori con earshot (MIT, suoni fatti da codice, nessun modello
+# per `sfx render`). earshot obbliga a installare torch e transformers: per questo non gira a ogni
+# render, ma una volta sola; i file finiscono in public/suoni/ dal PC.
+on:
+  workflow_dispatch:
+
+jobs:
+  suoni:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installa earshot (torch CPU)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install "earshot @ git+https://github.com/Leonxlnx/earshot"
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Elenco e render degli effetti
+        run: |
+          mkdir -p suoni
+          earshot sfx list > suoni/elenco.txt 2>&1 || true
+          head -80 suoni/elenco.txt
+          render() { earshot sfx render "$1" -o "suoni/$2.wav" ${3:-} && echo "OK $1 -> $2" || echo "MANCA $1"; }
+          render "whoosh_fast/crisp" whoosh "--dur 0.7"
+          render "ui_pop/soft" pop
+          render "pro_sub_drop/ref" colpo
+          render "notify/mid_tine" ding
+          render "riser/build" crescendo "--dur 1.6"
+          render "glitch/burst" glitch
+          render "pluck/kalimba" kalimba
+          ls -la suoni
+      - uses: actions/upload-artifact@v4
+        with:
+          name: suoni
+          path: suoni/
+          retention-days: 7
