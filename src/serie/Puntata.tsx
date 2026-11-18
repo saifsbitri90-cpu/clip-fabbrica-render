@@ -42,7 +42,11 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
   const deriva = (r.da * 37) % 2 > 1 ? 1 : -1; // verso della deriva, diverso da ripresa a ripresa
   const f = attori[Math.min(r.fuoco, attori.length - 1)];
   let scala = 1, fx = 540, fy = 990;
-  if (r.quadro === "largo" || !f) { scala = 1.0 * spinta; fx = 540 + deriva * 14 * k; fy = 990; }
+  if (r.quadro === "largo" || !f) {
+    // un po' piu' vicino e piu' in basso: la testa (anche di chi e' seduto) resta sopra la scritta, che sta a y 1190
+    scala = 1.12 * spinta; fx = 540 + deriva * 14 * k;
+    fy = attori.some((a) => a.posa === "seduto" || a.posa === "cade") ? 1160 : 1050;
+  }
   else if (r.quadro === "medio") {
     scala = 1.72 * spinta;
     fx = attori.length > 1 && r.fuoco === 0 ? attori.reduce((n, a) => n + a.x, 0) / attori.length : f.x;
