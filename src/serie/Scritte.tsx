@@ -13,7 +13,7 @@ export const Scritte: React.FC<{ pezzo: Pezzo | undefined; t: number }> = ({ pez
   const lunghe = pezzo.parole.reduce((n, p) => n + p.w.length, 0) > 22;
   return (
     <div style={{
-      position: "absolute", left: 120, right: 140, top: 1250, display: "flex", flexWrap: "wrap", justifyContent: "center",
+      position: "absolute", left: 100, right: 240, top: 1190, display: "flex", flexWrap: "wrap", justifyContent: "center",
       gap: "0 22px", transform: `scale(${0.9 + 0.1 * k})`, opacity: k, transformOrigin: "50% 50%",
     }}>
       {pezzo.parole.map((p, i) => (

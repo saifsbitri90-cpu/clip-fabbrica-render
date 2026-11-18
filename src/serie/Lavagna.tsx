@@ -50,7 +50,7 @@ export const Lavagna: React.FC<{ testo: string; valore: string; tl: number; dura
         <text x={tx} y={ty + 14} textAnchor="middle" fontFamily={OSWALD} fontWeight={700} fontSize={40} fill="#14171C">TU</text>
         <circle cx={tx + 46} cy={ty - 30} r={16} fill="#fff" stroke="#14171C" strokeWidth={4} />
       </svg>
-      {testo && <div style={{ position: "absolute", left: 0, right: 0, top: 210, display: "flex", justifyContent: "center" }}>
+      {testo && <div style={{ position: "absolute", left: 60, right: 230, top: 250, display: "flex", justifyContent: "center" }}>
         <div style={{ background: "#12161D", color: "#fff", fontFamily: OSWALD, fontWeight: 700, fontSize: 56, letterSpacing: 3, padding: "6px 26px",
           borderRadius: 10, textTransform: "uppercase" }}>{testo}</div>
       </div>}

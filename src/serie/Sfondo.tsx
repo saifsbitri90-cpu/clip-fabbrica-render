@@ -115,7 +115,7 @@ export const Sfondo: React.FC<{ luogo: Luogo | undefined; cam: Camera }> = ({ lu
       {/* nebbia bassa, vignetta, grana */}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,14,20,.28) 0%, rgba(10,14,20,0) 22%, rgba(10,14,20,0) 58%, rgba(10,14,20,.38) 100%)" }} />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0) 52%, rgba(0,0,0,.42) 100%)" }} />
-      <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${staticFile("serie/grana.png")})`, backgroundSize: "256px 256px", opacity: 0.07, mixBlendMode: "overlay" }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${staticFile("serie/grana.png")})`, backgroundSize: "256px 256px", opacity: 0.05 }} />
     </div>
   );
 };
