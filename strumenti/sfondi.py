@@ -27,9 +27,13 @@ USCITA = QUI / "public" / "serie" / "sfondi"
 MODELLO = "@cf/black-forest-labs/flux-1-schnell"
 # FLUX non capisce le negazioni: «no text» fa comparire scritte (provato il 18/11). Si descrive solo
 # quello che si vuole, e dai prompt dei copioni si tolgono le frasi «no …».
-STILE = ("flat vector illustration, premium animated explainer style, muted desaturated palette, soft atmospheric fog, "
-         "layered depth, clean geometric shapes, plain blank surfaces, subtle film grain, eye-level camera, "
-         "empty deserted scene, empty ground in the lower third, main elements in the center of the frame")
+# Stile A «cartone professionale» (guida grafica del 18/11): stesso linguaggio dei personaggi, contorni
+# scuri uniformi e colori pieni. Il vecchio stile (nebbia, grana, colori spenti) sembrava semi-realistico
+# accanto agli omini piatti. Provato il 18/11 su panchina e stadio: va bene senza ritocchi dopo.
+STILE = ("2D cartoon background art for an animated TV series, clean bold uniform dark outlines around every shape, "
+         "flat solid color fills with simple two-tone cel shading, simple geometric shapes, crisp and sharp everywhere, "
+         "limited palette of deep green, dark anthracite, warm gold and warm white with small red accents, "
+         "eye-level camera, empty scene, empty ground in the lower third, main elements in the center of the frame")
 
 
 def pulisci(prompt: str) -> str:
@@ -93,9 +97,10 @@ def main(percorso: str, rifai: bool) -> None:
         seme = int(hashlib.sha1(lg["id"].encode()).hexdigest()[:6], 16)  # stesso luogo, stessa immagine
         file.write_bytes(genera(prompt, seme, *accesso) if accesso else genera_cf(prompt, seme))
         print(f"{file.name}: {file.stat().st_size // 1024} KB")
-        if shutil.which("ffmpeg"):  # copia sfocata per i primi piani: il browser non deve sfocare a ogni fotogramma
-            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(file), "-vf", "gblur=sigma=3", "-q:v", "3",
-                            str(file.with_name(f"{lg['id']}_sfocato.jpg"))], check=True)
+        # niente piu' copia sfocata: dal 18/11 nei primi piani il fondale si scurisce, non si sfoca
+        vecchia = file.with_name(f"{lg['id']}_sfocato.jpg")
+        if vecchia.exists():
+            vecchia.unlink()
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ import edge_tts
 VOCI = {"it": "it-IT-DiegoNeural", "en": "en-US-AndrewNeural"}
 POSE = {"fermo", "seduto", "alzati", "cammina", "zoppica", "corre", "calcia", "cade", "a_terra", "esulta", "indica", "braccia_conserte",
         "ride", "parla", "fissa", "lancia", "si_gira", "blocca"}
-ESPRESSIONI = {"neutra", "felice", "arrabbiata", "triste", "sorpresa", "spaventata", "sprezzante", "dolore", "determinata"}
+ESPRESSIONI = {"neutra", "felice", "arrabbiata", "triste", "sorpresa", "spaventata", "sprezzante", "dolore", "determinata", "delusa"}
 INQUADRATURE = {"campo_largo", "piano_medio", "primo_piano", "dall_alto"}
 CARTELLI = {"badge", "contatore", "tabellone", "notifica", "lavagna", "nome", "scelta"}
 # folla, boato e fischi del pubblico tolti il 18/11: generati in codice suonavano come fruscio
@@ -34,6 +34,13 @@ def norm(s: str) -> str:
 
 def pezzi_di(parola: str) -> list[str]:
     return [norm(x) for x in re.findall(r"[0-9A-Za-zÀ-ÿ]+", parola)]
+
+
+def per_la_voce(testo: str) -> str:
+    """testo dato a edge-tts: senza virgolette. Con «… bene.» la voce leggeva il punto ad alta voce
+    («punto», 4 volte nella puntata 1 v2, 18/11); le virgolette servono solo alle scritte e alla bocca."""
+    testo = re.sub(r"[«»“”\"]", "", testo)
+    return re.sub(r"\s+", " ", testo).strip()
 
 
 def da_mostrare(parola: str) -> str:
@@ -76,6 +83,8 @@ def stile(pg: dict) -> dict:
         m = re.search(r"(?:numero|n\.|n°|maglia|col)\s*(\d{1,2})\b", testo)
         if m:
             s["numero"] = m.group(1)
+    if "numeroColore" not in s and re.search(r"(?:numero|n\.)\s*\d{1,2}\s+(?:dorat|d'oro|oro)", testo):
+        s["numeroColore"] = "#F5C542"  # oro della palette ufficiale
     s.setdefault("fascia", "fascia" in testo or "capitano" in testo)
     s.setdefault("pettorina", "pettorina" in testo)
     s.setdefault("barba", "barba" in testo)
@@ -155,6 +164,9 @@ def controlla(sb: dict) -> None:
                 p["espressione"] = "neutra"
             if p.get("posizione") not in POSIZIONI:
                 p["posizione"] = "centro"
+            if p.get("vista") not in (None, "tre_quarti", "fronte", "schiena"):
+                avvisi.append(f"scena {n}: vista {p.get('vista')!r} sconosciuta, tolta")
+                p.pop("vista", None)
         s["personaggi"] = [p for p in s.get("personaggi") or [] if p.get("id") in ids]
         chiave = norm(str(s.get("parola_chiave", "")))
         if chiave and chiave not in norm(s["voce"]):
@@ -182,11 +194,14 @@ def main(percorso: str, lingua: str, velocita: str) -> None:
     if not 85 <= n_parole <= 125:
         avvisi.append(f"{n_parole} parole nella voce (previste 100-115)")
 
-    testo = " ".join(s["voce"].strip() for s in scene_in)
+    testo = per_la_voce(" ".join(s["voce"].strip() for s in scene_in))
     PUBLIC.mkdir(exist_ok=True)
     confini = asyncio.run(parla(testo, VOCI[lingua], PUBLIC / "voce.mp3", velocita))
     if not confini:
         sys.exit("edge-tts non ha restituito i tempi delle parole")
+    letti = [txt for (_t, _d, txt) in confini if not re.search(r"[0-9A-Za-zÀ-ÿ]", txt)]
+    if letti:  # la voce ha pronunciato un segno di punteggiatura («punto», «virgola»...)
+        sys.exit(f"LA VOCE LEGGE LA PUNTEGGIATURA: {letti}. Controlla virgolette e segni nel copione")
 
     # allineamento: ogni confine di edge-tts si cerca nei pezzi del copione, in ordine
     pezzi = [(i, tk) for i, p in enumerate(parole) for tk in p["toks"]]

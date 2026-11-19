@@ -13,8 +13,12 @@ on:
         required: true
         default: "storyboard/prova-hd.json"
       composizione:
-        description: "nome della composizione registrata in src/Radice.tsx (il 3D e' in archivio-3d/)"
+        description: "nome della composizione registrata in src/Radice.tsx: Puntata o Scheda (il 3D e' in archivio-3d/)"
         required: true
+      scena:
+        description: "solo questa scena (numero), per una scena campione; vuoto = puntata intera"
+        required: false
+        default: ""
 
 jobs:
   render:
@@ -34,7 +38,7 @@ jobs:
           pip install edge-tts==7.3.1 mutagen==1.47.0
       - name: Voce e controlli dello storyboard
         run: |
-          if [ "${{ inputs.composizione }}" = "Puntata" ]; then
+          if [ "${{ inputs.composizione }}" = "Puntata" ] || [ "${{ inputs.composizione }}" = "Scheda" ]; then
             python strumenti/serie_voce.py "${{ inputs.storyboard }}"
           elif [ "${{ inputs.composizione }}" = "VoxelHD" ]; then
             python strumenti/voce_hd.py "${{ inputs.storyboard }}"
@@ -46,9 +50,11 @@ jobs:
           start=$(date +%s)
           # --scale 1.3333 non da' un'altezza intera (2559,94): Remotion la rifiuta. Si disegna a
           # 2160x3840 (fattore 2, esatto) e si riduce a 1440x2560 con lanczos: contorni piu' lisci.
-          if [ "${{ inputs.composizione }}" = "Puntata" ]; then SCALA=1; LATO=1080:1920; else SCALA=2; LATO=1440:2560; fi
+          case "${{ inputs.composizione }}" in Puntata|Scheda) SCALA=1; LATO=1080:1920;; *) SCALA=2; LATO=1440:2560;; esac
+          FOTOGRAMMI=""
+          if [ -n "${{ inputs.scena }}" ]; then FOTOGRAMMI="--frames=$(python strumenti/fotogrammi_scena.py ${{ inputs.scena }})"; echo "solo la scena ${{ inputs.scena }}: $FOTOGRAMMI"; fi
           npx remotion render src/index.ts "${{ inputs.composizione }}" out/grezzo.mp4 --gl=swangle \
-            --props=public/props.json --concurrency=4 --scale=$SCALA --crf=16 --jpeg-quality=95
+            --props=public/props.json --concurrency=4 --scale=$SCALA --crf=16 --jpeg-quality=95 $FOTOGRAMMI
           # audio a -14 LUFS (il livello di TikTok, Reels e Shorts), picco a -1,5 dBTP
           npx remotion ffmpeg -y -i out/grezzo.mp4 -vf "scale=$LATO:flags=lanczos" -c:v libx264 -crf 17 \
             -preset slow -pix_fmt yuv420p -af "loudnorm=I=-14:TP=-1.5:LRA=11" -c:a aac -b:a 192k -ar 48000 \

@@ -1,0 +1,339 @@
+{
+ "nota": "Giorno 1 v2: copione riscritto dal workflow wf_e18cfec2-9bc (4 sceneggiatori, giudici, sintesi, critici) dopo le critiche di Saif del 18/11 (filo logico, italiano, espressioni). Da approvare prima del render.",
+ "giorno": 1,
+ "badge": "GIORNO 1 · STRADA PER LA 10",
+ "personaggi": [
+  {
+   "id": "tu",
+   "nome": "Giò",
+   "ruolo": "Ultimo della panchina",
+   "aspetto": "Diciannovenne esile, capelli ricci e scompigliati",
+   "colori": {
+    "pelle": "#e0ac69",
+    "capelli": "#2d1b12",
+    "maglia": "#176B43",
+    "pantaloni": "#ffffff",
+    "scarpe": "#d9d9d9"
+   },
+   "dettaglio": "Maglia numero 22 sempre troppo larga"
+  },
+  {
+   "id": "santoro",
+   "nome": "Santoro",
+   "ruolo": "Fuoriclasse numero 10",
+   "aspetto": "Ventitreenne atletico, ciuffo nero tirato all'indietro",
+   "colori": {
+    "pelle": "#c68e5a",
+    "capelli": "#0d0d0d",
+    "maglia": "#176B43",
+    "pantaloni": "#ffffff",
+    "scarpe": "#f2c200"
+   },
+   "dettaglio": "Numero 10 dorato, cavigliera arancione"
+  },
+  {
+   "id": "mister",
+   "nome": "Villani",
+   "ruolo": "Allenatore",
+   "aspetto": "Sessantenne tozzo, giacca a vento grigia",
+   "colori": {
+    "pelle": "#f0c8a0",
+    "capelli": "#9a9a9a",
+    "maglia": "#2b2d42",
+    "pantaloni": "#2b2d42",
+    "scarpe": "#3a3a3a"
+   },
+   "dettaglio": "Fischietto al collo, cartellina sotto il braccio",
+   "stile": {
+    "capelli": "corti",
+    "vestito": "tuta",
+    "oggetto": "cartellina",
+    "altezza": 1.0
+   }
+  }
+ ],
+ "luoghi": [
+  {
+   "id": "stadio",
+   "descrizione": "Campo del piccolo stadio comunale di Porto Albo, sera, tribune piene",
+   "prompt_sfondo_en": "small italian town football stadium at dusk seen from the edge of the pitch, green grass with white lines, simple stands with the crowd drawn as rows of simple round shapes, four floodlight towers, warm orange sky"
+  },
+  {
+   "id": "panchina",
+   "descrizione": "Panchina coperta a bordo campo, sediolini di plastica, bottiglie d'acqua, terra bagnata",
+   "prompt_sfondo_en": "football team dugout seen from the pitch, a row of plain red plastic seats, plain blank back wall, small curved roof, a few water bottles, muddy sideline ground in front, evening floodlight glow"
+  },
+  {
+   "id": "tunnel_uscita",
+   "descrizione": "Tunnel di cemento buio che sbuca sul rettangolo verde, luce abbagliante in fondo",
+   "prompt_sfondo_en": "concrete player tunnel seen from inside, bright green football pitch at the end, light pouring in, pipes along the ceiling, wet floor"
+  }
+ ],
+ "scene": [
+  {
+   "n": 1,
+   "luogo": "panchina",
+   "inquadratura": "primo_piano",
+   "voce": "Tre anni senza giocare un minuto. Stasera ne hai dodici.",
+   "parola_chiave": "dodici",
+   "personaggi": [
+    {
+     "id": "tu",
+     "posa": "seduto",
+     "espressione": "sorpresa",
+     "posizione": "centro"
+    }
+   ],
+   "cartello": {
+    "tipo": "contatore",
+    "testo": "MINUTI GIOCATI",
+    "valore": "0"
+   },
+   "suono": "silenzio"
+  },
+  {
+   "n": 2,
+   "luogo": "stadio",
+   "inquadratura": "campo_largo",
+   "voce": "Settantottesimo minuto: la tua squadra perde due a zero.",
+   "parola_chiave": "settantottesimo",
+   "personaggi": [],
+   "cartello": {
+    "tipo": "tabellone",
+    "testo": "P. ALBO - ROVERE 78'",
+    "valore": "0-2"
+   },
+   "suono": "silenzio"
+  },
+  {
+   "n": 3,
+   "luogo": "stadio",
+   "inquadratura": "piano_medio",
+   "voce": "Santoro, il numero dieci, prende un calcio sul ginocchio.",
+   "parola_chiave": "ginocchio",
+   "personaggi": [
+    {
+     "id": "santoro",
+     "posa": "cade",
+     "espressione": "dolore",
+     "posizione": "centro"
+    }
+   ],
+   "cartello": {
+    "tipo": "nome",
+    "testo": "SANTORO",
+    "valore": "NUMERO 10 · FUORICLASSE"
+   },
+   "suono": "silenzio"
+  },
+  {
+   "n": 4,
+   "luogo": "panchina",
+   "inquadratura": "piano_medio",
+   "voce": "Villani si gira: «Giò, entri tu, non ho altre punte.»",
+   "parola_chiave": "entri tu",
+   "personaggi": [
+    {
+     "id": "mister",
+     "posa": "si_gira",
+     "espressione": "determinata",
+     "posizione": "sinistra"
+    },
+    {
+     "id": "tu",
+     "posa": "seduto",
+     "espressione": "sorpresa",
+     "posizione": "destra"
+    }
+   ],
+   "cartello": {
+    "tipo": "nome",
+    "testo": "VILLANI",
+    "valore": "ALLENATORE"
+   },
+   "suono": "silenzio"
+  },
+  {
+   "n": 5,
+   "luogo": "panchina",
+   "inquadratura": "piano_medio",
+   "voce": "Santoro esce zoppicando e ti trova in piedi.",
+   "parola_chiave": "in piedi",
+   "personaggi": [
+    {
+     "id": "santoro",
+     "posa": "zoppica",
+     "espressione": "sorpresa",
+     "posizione": "sinistra"
+    },
+    {
+     "id": "tu",
+     "posa": "alzati",
+     "espressione": "determinata",
+     "posizione": "destra"
+    }
+   ],
+   "cartello": null,
+   "suono": "silenzio"
+  },
+  {
+   "n": 6,
+   "luogo": "panchina",
+   "inquadratura": "primo_piano",
+   "voce": "Lo vedi: ha paura di perdere il posto.",
+   "parola_chiave": "paura",
+   "personaggi": [
+    {
+     "id": "santoro",
+     "posa": "fissa",
+     "espressione": "spaventata",
+     "posizione": "centro"
+    }
+   ],
+   "cartello": null,
+   "suono": "silenzio"
+  },
+  {
+   "n": 7,
+   "luogo": "panchina",
+   "inquadratura": "piano_medio",
+   "voce": "Ti blocca: «Siediti, ragazzino, sto bene.»",
+   "parola_chiave": "sto bene",
+   "personaggi": [
+    {
+     "id": "santoro",
+     "posa": "blocca",
+     "espressione": "arrabbiata",
+     "posizione": "sinistra"
+    },
+    {
+     "id": "tu",
+     "posa": "fermo",
+     "espressione": "spaventata",
+     "posizione": "destra"
+    }
+   ],
+   "cartello": null,
+   "suono": "silenzio"
+  },
+  {
+   "n": 8,
+   "luogo": "panchina",
+   "inquadratura": "primo_piano",
+   "voce": "Villani ci ripensa: «Uno zoppo o un arrugginito, decidi tu.»",
+   "parola_chiave": "decidi tu",
+   "personaggi": [
+    {
+     "id": "mister",
+     "posa": "parla",
+     "espressione": "determinata",
+     "posizione": "sinistra"
+    },
+    {
+     "id": "tu",
+     "posa": "fermo",
+     "espressione": "sorpresa",
+     "posizione": "destra"
+    }
+   ],
+   "cartello": {
+    "tipo": "badge",
+    "testo": "DECIDI TU",
+    "valore": ""
+   },
+   "suono": "silenzio"
+  },
+  {
+   "n": 9,
+   "luogo": "panchina",
+   "inquadratura": "primo_piano",
+   "voce": "Santoro insiste: «Se entri e sbagli, sei finito.»",
+   "parola_chiave": "sei finito",
+   "personaggi": [
+    {
+     "id": "santoro",
+     "posa": "indica",
+     "espressione": "arrabbiata",
+     "posizione": "sinistra"
+    },
+    {
+     "id": "tu",
+     "posa": "fermo",
+     "espressione": "spaventata",
+     "posizione": "destra"
+    }
+   ],
+   "cartello": null,
+   "suono": "silenzio"
+  },
+  {
+   "n": 10,
+   "luogo": "panchina",
+   "inquadratura": "primo_piano",
+   "voce": "Se torna Santoro, ti risiedi chissà per quanto.",
+   "parola_chiave": "risiedi",
+   "personaggi": [
+    {
+     "id": "tu",
+     "posa": "fermo",
+     "espressione": "triste",
+     "posizione": "centro",
+     "vista": "fronte"
+    }
+   ],
+   "cartello": null,
+   "suono": "silenzio"
+  },
+  {
+   "n": 11,
+   "luogo": "panchina",
+   "inquadratura": "piano_medio",
+   "voce": "Ma anche zoppo, la partita la cambia lui.",
+   "parola_chiave": "partita",
+   "personaggi": [
+    {
+     "id": "santoro",
+     "posa": "fissa",
+     "espressione": "determinata",
+     "posizione": "centro"
+    }
+   ],
+   "cartello": null,
+   "suono": "silenzio"
+  },
+  {
+   "n": 12,
+   "luogo": "panchina",
+   "inquadratura": "piano_medio",
+   "voce": "Dodici minuti, tuoi o di Santoro: commenta A o B.",
+   "parola_chiave": "dodici",
+   "personaggi": [
+    {
+     "id": "santoro",
+     "posa": "fissa",
+     "espressione": "determinata",
+     "posizione": "sinistra"
+    },
+    {
+     "id": "tu",
+     "posa": "fissa",
+     "espressione": "spaventata",
+     "posizione": "destra"
+    }
+   ],
+   "cartello": {
+    "tipo": "scelta",
+    "testo": "A) ENTRI TU, ORA.",
+    "valore": "B) FAI TORNARE SANTORO."
+   },
+   "suono": "silenzio"
+  }
+ ],
+ "scelta": {
+  "A": "Entri tu, ora.",
+  "B": "Fai tornare Santoro."
+ },
+ "didascalia_post": "Tre anni in panchina, dodici minuti alla fine. Santoro zoppica ma giura che sta bene, e Villani ti dice: «Uno zoppo o un arrugginito, decidi tu.» A: entri tu, ora. B: fai tornare Santoro. Scrivi A o B nei commenti: domani la storia riparte dalla scelta che vince. #stradaperla10 #calcio #serieanimata",
+ "commento_fissato": "Squadra A o squadra B? L'argomento migliore entra nella prossima puntata.",
+ "trama": "Settantottesimo minuto, il Porto Albo perde due a zero. Santoro, il numero dieci, prende un calcio sul ginocchio, e Villani chiama te, Giò, perché non ha altre punte.\nSantoro esce zoppicando e ti trova in piedi. Ha paura di perdere il posto, così ti blocca e giura che sta bene. Villani ci ripensa e lascia a te la scelta: da una parte uno zoppo, dall'altra uno arrugginito.\nSantoro ti avverte: se entri e sbagli, sei finito. Se invece lo fai tornare, ti risiedi chissà per quanto, ma anche zoppo la partita la può cambiare lui."
+}

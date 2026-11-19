@@ -1,10 +1,12 @@
-// Fondale della scena: l'illustrazione generata (public/serie/sfondi/<luogo>.jpg) oppure, finché non
-// c'è, un fondale disegnato in codice per tipo di luogo. Sopra: nebbia, vignetta e grana, come nei
-// video che imitiamo. La telecamera lo muove meno dei personaggi (parallasse) e lo sfoca nei primi piani.
+// Fondale della scena: l'illustrazione generata (public/serie/sfondi/<luogo>.jpg, stile cartone 2D con
+// contorni scuri come i personaggi) oppure, finché non c'è, un fondale disegnato in codice per tipo di
+// luogo. La telecamera lo muove meno dei personaggi (parallasse). Guida del 18/11: niente sfocatura
+// fotografica nei primi piani (stonava coi personaggi piatti): il fondale si scurisce appena.
 import React from "react";
 import { Img, staticFile } from "remotion";
 import type { Luogo } from "./tipi";
 
+/** blur: quanto e' stretta l'inquadratura (0 campo largo, ~5 primo piano); oggi serve solo a scurire il fondale */
 export type Camera = { scala: number; fx: number; fy: number; blur: number; panX: number };
 
 const Stadio: React.FC<{ panchina?: boolean }> = ({ panchina }) => (
@@ -106,19 +108,16 @@ export const Sfondo: React.FC<{ luogo: Luogo | undefined; cam: Camera }> = ({ lu
       <div style={{
         position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transformOrigin: "0 0",
         transform: `translate(${540 + cam.panX}px, 960px) scale(${cam.scala}) translate(${-cam.fx}px, ${-cam.fy}px)`,
-        // con l'illustrazione si usa la copia gia' sfocata (fatta una volta con ffmpeg): il blur del browser
-        // a ogni fotogramma rallentava il render; il filtro resta solo per i fondali disegnati in codice
-        filter: cam.blur > 0.3 && !luogo?.img ? `blur(${cam.blur}px)` : undefined,
       }}>
         {luogo?.img
-          ? <Img src={staticFile(cam.blur > 0.3 && luogo.sfocata ? luogo.sfocata : luogo.img)}
+          ? <Img src={staticFile(luogo.img)}
               style={{ position: "absolute", left: -420, top: 0, width: 1920, height: 1920, objectFit: "cover" }} />
           : <Dipinto />}
       </div>
-      {/* nebbia bassa, vignetta, grana */}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,14,20,.28) 0%, rgba(10,14,20,0) 22%, rgba(10,14,20,0) 58%, rgba(10,14,20,.38) 100%)" }} />
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0) 52%, rgba(0,0,0,.42) 100%)" }} />
-      {/* grana tolta il 18/11: quasi invisibile e uno dei livelli che rallentavano il render */}
+      {/* piu' stretta l'inquadratura, piu' il fondale si scurisce: il personaggio resta il punto focale */}
+      <div style={{ position: "absolute", inset: 0, background: `rgba(17,24,39,${Math.min(1, Math.max(0, cam.blur / 5)) * 0.24})` }} />
+      {/* leggera ombra in alto (intestazione) e in basso (scritte); niente nebbia ne' grana */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(17,24,39,.22) 0%, rgba(17,24,39,0) 20%, rgba(17,24,39,0) 62%, rgba(17,24,39,.30) 100%)" }} />
     </div>
   );
 };

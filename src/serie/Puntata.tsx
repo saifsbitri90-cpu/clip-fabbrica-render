@@ -4,12 +4,14 @@
 // Tutto dipende dal fotogramma: niente stato, niente casualità, render ripetibile.
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
-import { ALTEZZA_TESTA, ISTANTE_CALCIO, ISTANTE_LANCIO, Omino } from "./Omino";
+import { ALTEZZA_TESTA, ISTANTE_CALCIO, ISTANTE_LANCIO, Omino, spessore } from "./Omino";
+import { ANTRACITE, BIANCO, ORO } from "./palette";
+import { OSWALD } from "./font";
 import { Sfondo, type Camera } from "./Sfondo";
 import { Scritte } from "./Scritte";
 import { Badge, BadgeScena, Contatore, NomeTag, Notifica, Scelta, Tabellone } from "./Cartelli";
 import { Lavagna } from "./Lavagna";
-import type { Personaggio, Posa, Posizione, PropsPuntata, Scena } from "./tipi";
+import type { Espressione, Personaggio, Posa, Posizione, PropsPuntata, Scena, Vista } from "./tipi";
 
 const TERRA = 1580; // linea dei piedi nel mondo 1080x1920
 const XPOS: Record<Posizione, number> = { sinistra: 300, centro: 540, destra: 780 };
@@ -22,16 +24,23 @@ const TINTE: Record<string, string> = {
 
 type Quadro = "largo" | "medio" | "primo";
 type Ripresa = { da: number; a: number; quadro: Quadro; fuoco: number };
-type Attore = { p: Personaggio; id: string; posa: Posa; espr: Scena["personaggi"][number]["espressione"]; x: number; xs: number;
-  verso: 1 | -1; seme: number; tl: number; parlando: number };
+type Attore = { p: Personaggio; id: string; posa: Posa; espr: Espressione; x: number; xs: number;
+  verso: 1 | -1; seme: number; tl: number; parlando: number; vista: Vista };
+/** pose con un braccio teso in avanti: in primo piano la telecamera lascia spazio al gesto */
+const GESTI: Posa[] = ["blocca", "indica", "parla", "si_gira", "lancia"];
 
 /** un taglio a ogni pezzo di frase, alternando due inquadrature; mai riprese più corte di 0,75 s */
 function riprese(s: Scena, ids: string[], parlante: string | null): Ripresa[] {
   const nAttori = ids.length;
+  // il protagonista sei tu: le riprese strette senza battuta vanno sulla tua reazione (la v2 stava sul 10
+  // in 5 scene su 12 e chi l'ha guardata ha creduto che il protagonista fosse lui)
+  const iTu = ids.indexOf("tu");
+  const reazione = iTu >= 0 && nAttori > 1 ? iTu : 0;
+  const altro = Math.max(0, ids.findIndex((id) => id !== "tu"));
   const schema: { quadro: Quadro; fuoco: number }[] =
     s.inquadratura === "campo_largo" ? [{ quadro: "largo", fuoco: 0 }, { quadro: "medio", fuoco: 0 }]
-    : s.inquadratura === "piano_medio" ? [{ quadro: "medio", fuoco: 0 }, { quadro: "primo", fuoco: 0 }]
-    : nAttori > 1 ? [{ quadro: "primo", fuoco: 0 }, { quadro: "primo", fuoco: 1 }]
+    : s.inquadratura === "piano_medio" ? [{ quadro: "medio", fuoco: 0 }, { quadro: "primo", fuoco: reazione }]
+    : nAttori > 1 ? [{ quadro: "primo", fuoco: altro }, { quadro: "primo", fuoco: reazione }]
     : [{ quadro: "primo", fuoco: 0 }, { quadro: "medio", fuoco: 0 }];
   const inizi = [s.da];
   for (const p of s.pezzi.slice(1)) {
@@ -65,10 +74,13 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
     fx = attori.length > 1 && r.fuoco === 0 ? attori.reduce((n, a) => n + a.xs, 0) / attori.length : f.xs;
     fy = TERRA - 320 + abbassa(f.posa, f.tl) * 0.6 + deriva * 8 * k;
   } else {
-    scala = 2.9 * spinta;
+    // primo piano: testa e spalle, testa a y ~780 cosi' il numero di maglia resta sopra la scritta (fondo a 1420).
+    // Con un braccio teso la telecamera si allarga e si sposta verso il gesto: la mano resta nel quadro
+    const gesto = GESTI.includes(f.posa) && f.vista === "tre_quarti";
+    scala = (gesto ? 2.35 : 2.9) * spinta;
     const altezza = (f.p.stile.altezza ?? 1);
-    fx = f.xs + f.verso * 18 + deriva * 6 * k;
-    fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 48;
+    fx = f.xs + f.verso * (gesto ? 75 : 18) + deriva * 6 * k;
+    fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 62;
   }
   fx = Math.min(Math.max(fx, 540 / scala), 1080 - 540 / scala); // mai fuori dal mondo
   const bgScala = (1 + (scala - 1) * 0.3) * (corre ? 1.18 : 1);
@@ -88,11 +100,11 @@ function versi(s: Scena): (1 | -1)[] {
   });
 }
 
-const Panchina: React.FC<{ da: number; a: number }> = ({ da, a }) => (
-  <g>
+const Panchina: React.FC<{ da: number; a: number; lw: number }> = ({ da, a, lw }) => (
+  <g stroke={ANTRACITE} strokeWidth={lw} strokeLinejoin="round">
+    {[da + 30, a - 30, (da + a) / 2].map((x, i) => <rect key={i} x={x - 9} y={TERRA - 110} width={18} height={110} fill="#2E3742" />)}
     <rect x={da} y={TERRA - 132} width={a - da} height={26} rx={8} fill="#5C6E82" />
     <rect x={da} y={TERRA - 240} width={a - da} height={84} rx={14} fill="#4A5B6E" />
-    {[da + 30, a - 30, (da + a) / 2].map((x, i) => <rect key={i} x={x - 9} y={TERRA - 110} width={18} height={110} fill="#2E3742" />)}
   </g>
 );
 
@@ -102,6 +114,23 @@ const Pallone: React.FC<{ x: number; y: number; giro: number }> = ({ x, y, giro 
     {[0, 72, 144, 216, 288].map((g) => <circle key={g} cx={Math.cos((g * Math.PI) / 180) * 11} cy={Math.sin((g * Math.PI) / 180) * 11} r={4.5} fill="#23262B" />)}
   </g>
 );
+
+/** «TU · GIÒ 22» con la punta verso la testa del protagonista */
+const TuEtichetta: React.FC<{ x: number; y: number; k: number; nome: string; numero?: string }> = ({ x, y, k, nome, numero }) => {
+  const cx = Math.min(Math.max(x, 220), 630);
+  return (
+    <div style={{ position: "absolute", left: cx - 200, width: 400, top: y - 124, display: "flex", flexDirection: "column", alignItems: "center",
+      opacity: k, transform: `translateY(${(1 - k) * 20}px)` }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 14, background: BIANCO, border: `5px solid ${ANTRACITE}`, borderRadius: 14, padding: "0 22px",
+        fontFamily: OSWALD, fontWeight: 700, color: ANTRACITE, textTransform: "uppercase" }}>
+        <span style={{ fontSize: 72, lineHeight: 1.15 }}>TU</span>
+        <span style={{ fontSize: 38, letterSpacing: 2 }}>{nome}{numero ? ` · ${numero}` : ""}</span>
+      </div>
+      <div style={{ width: 0, height: 0, borderLeft: "20px solid transparent", borderRight: "20px solid transparent", borderTop: `24px solid ${ANTRACITE}`,
+        marginLeft: (x - cx) * 2 }} />
+    </div>
+  );
+};
 
 export const Puntata: React.FC<PropsPuntata> = (props) => {
   const frame = useCurrentFrame();
@@ -140,6 +169,8 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
     const x = XPOS[pr.posizione] ?? 540, verso = vv[i];
     let posa: Posa = pr.posa;
     let tlA = pr.posa === "cade" && giaCaduto(pr.id) ? tl + 3 : tl - ritardo(pr.posa); // chi e' gia' caduto resta a terra
+    // la faccia di dolore arriva col colpo (a 0,5 s dall'inizio della caduta), non prima
+    const espr: Espressione = pr.posa === "cade" && pr.espressione === "dolore" && !giaCaduto(pr.id) && tlA < 0.5 ? "determinata" : pr.espressione;
     let xs = x;
     if (pr.posa === "cammina" || pr.posa === "zoppica" || pr.posa === "corre") {
       // chi non c'era entra da fuori campo; chi c'era fa qualche passo; poi si ferma (niente camminata sul posto)
@@ -150,17 +181,21 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
       if (k >= 1 && pr.posa !== "corre") { posa = "fermo"; tlA = tl; }
     }
     if (pr.posa === "blocca") xs = x + verso * 40 * Math.min(1, Math.max(0, tlA / 0.3));
-    const versoEff = (pr.posa === "si_gira" && tlA < 0.2 ? -verso : verso) as 1 | -1;
-    return [{ p, id: pr.id, posa, espr: pr.espressione, x, xs, verso: versoEff, seme: i + s.n, tl: tlA, parlando: pr.id === parlante ? bocca : 0 }];
+    // «si gira»: di schiena (numero e nome sulla maglia) fino alla parola, poi di tre quarti verso di te
+    const vista: Vista = pr.vista ?? (pr.posa === "si_gira" && tlA < 0.15 ? "schiena" : "tre_quarti");
+    return [{ p, id: pr.id, posa, espr, x, xs, verso, seme: i + s.n, tl: tlA, parlando: pr.id === parlante ? bocca : 0, vista }];
   });
   const lista = riprese(s, attori.map((a) => a.id), parlante);
   const r = lista.find((x) => t >= x.da && t < x.a) ?? lista[lista.length - 1];
   const corre = attori.some((a) => a.posa === "corre");
-  const { ch, bg } = camere(r, attori, t, tl, corre);
+  const scelta = s.cartello?.tipo === "scelta" || t >= props.scelta.da;
+  // nel finale A/B i personaggi scendono nella meta' bassa: sopra ci sono domanda e opzioni, nessuno coperto
+  const { ch, bg } = scelta
+    ? { ch: { scala: 1, fx: 540, fy: 861, blur: 0, panX: 0 }, bg: { scala: 1, fx: 540, fy: 930, blur: 0, panX: 0 } }
+    : camere(r, attori, t, tl, corre);
   const tipo = s.cartello?.tipo;
   const tlc = s === scene[0] ? tl - 2.5 : tl; // nella prima scena il cartello entra dopo il badge grande
   const lavagna = s.inquadratura === "dall_alto" || tipo === "lavagna";
-  const scelta = tipo === "scelta" || t >= props.scelta.da;
   const pezzo = s.pezzi.find((p) => t >= p.da && t < p.a) ?? (t < s.pezzi[0]?.da ? undefined : s.pezzi[s.pezzi.length - 1]);
   const tu = cast.get("tu");
   const notifica = tipo === "notifica";
@@ -175,14 +210,15 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
   const mondo = (
     <svg viewBox="0 0 1080 1920" width="1080" height="1920" style={{ position: "absolute", inset: 0 }}>
       <g transform={`translate(540 960) scale(${ch.scala}) translate(${-ch.fx} ${-ch.fy})`}>
-        {seduti.length > 0 && <Panchina da={Math.min(...seduti.map((a) => a.x)) - 170} a={Math.max(...seduti.map((a) => a.x)) + 170} />}
+        {seduti.length > 0 && <Panchina lw={spessore(ch.scala)} da={Math.min(...seduti.map((a) => a.x)) - 170} a={Math.max(...seduti.map((a) => a.x)) + 170} />}
         {corre && [0, 1, 2, 3, 4].map((i) => {
           const y = TERRA - 120 - i * 80, sp = ((tl * 900 + i * 230) % 1200);
           return <rect key={i} x={1180 - sp} y={y} width={160 + (i % 2) * 90} height={6} rx={3} fill="#FFFFFF" opacity={0.28} />;
         })}
         {attori.map((a, i) => (
           <g key={i} transform={`translate(${a.xs} ${TERRA}) scale(${a.verso * (a.p.stile.altezza ?? 1)} ${a.p.stile.altezza ?? 1})`}>
-            <Omino p={a.p} posa={a.posa} espr={a.espr} t={t} tl={a.tl} seme={a.seme} verso={a.verso} parlando={a.parlando} />
+            <Omino p={a.p} posa={a.posa} espr={a.espr} t={t} tl={a.tl} seme={a.seme} verso={a.verso} parlando={a.parlando}
+              zoom={ch.scala * (a.p.stile.altezza ?? 1)} vista={a.vista} />
           </g>
         ))}
         {/* lampo d'impatto quando il ginocchio cede (la caduta parte a 0,15 s, il contatto e' a ~0,5 s) */}
@@ -196,7 +232,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
           }).join(" ");
           return (
             <g key={`b${i}`} transform={`translate(${a.xs + a.verso * 34} ${TERRA - 150}) scale(${sc})`} opacity={1 - k * 0.6}>
-              <polygon points={punte} fill="#FFE27A" stroke="#2A1E18" strokeWidth={6} strokeLinejoin="round" />
+              <polygon points={punte} fill={ORO} stroke={ANTRACITE} strokeWidth={6} strokeLinejoin="round" />
             </g>
           );
         })}
@@ -227,6 +263,16 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
         {notifica && <div style={{ position: "absolute", inset: 0, background: "rgba(8,10,14,.35)" }} />}
       </>)}
 
+      {/* prima scena: un'etichetta indica chi sei, prima che entri il contatore */}
+      {s === scene[0] && tl > 0.4 && tl < 2.3 && (() => {
+        const a = attori.find((x) => x.id === "tu");
+        if (!a) return null;
+        const alt = a.p.stile.altezza ?? 1;
+        const hx = 540 + (a.xs + a.verso * 20 * alt - ch.fx) * ch.scala;
+        const hy = 960 + (TERRA - ALTEZZA_TESTA * alt + abbassa(a.posa, a.tl) - ch.fy) * ch.scala - 82 * alt * ch.scala;
+        const k = Math.min(1, (tl - 0.4) / 0.2) * Math.min(1, (2.3 - tl) / 0.2);
+        return <TuEtichetta x={hx} y={hy} k={k} nome={a.p.nome} numero={a.p.stile.numero} />;
+      })()}
       {tipo === "contatore" && s.cartello && <Contatore testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
       {tipo === "tabellone" && s.cartello && <Tabellone testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
       {tipo === "notifica" && s.cartello && <Notifica testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} pelle={tu?.colori.pelle ?? "#C68B62"} />}

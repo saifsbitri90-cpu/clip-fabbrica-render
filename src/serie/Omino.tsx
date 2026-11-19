@@ -1,8 +1,10 @@
-// Personaggio a omino per la serie 2D: testa tonda, arti a linee spesse, colori pieni senza contorni
-// (lo stile di Stickocalypse). Uno scheletro a 10 angoli: ogni posa è una funzione del tempo, quindi
-// il render è ripetibile fotogramma per fotogramma. Vista di tre quarti, rivolto a destra (verso = 1).
+// Personaggio a omino per la serie 2D, stile A «cartone professionale» (guida del 18/11): testa tonda,
+// arti a linee spesse, colori pieni, contorno scuro di spessore costante a schermo. Uno scheletro a 10
+// angoli: ogni posa è una funzione del tempo, quindi il render è ripetibile fotogramma per fotogramma.
+// Viste: tre quarti rivolto a destra (verso = 1, quella delle scene), fronte e schiena (OminoDritto).
 import React from "react";
-import type { Espressione, Personaggio, Posa } from "./tipi";
+import type { Espressione, Personaggio, Posa, Vista } from "./tipi";
+import { BIANCO, CONTORNO_SCHERMO } from "./palette";
 
 const COSCIA = 120, STINCO = 118, PIEDE_H = 12, BUSTO = 185, COLLO = 64, R_TESTA = 60;
 const OMERO = 98, AVAMBRACCIO = 92;
@@ -149,22 +151,45 @@ export function scurisci(hex: string, k: number): string {
 const Linea: React.FC<{ a: P; b: P; w: number; c: string }> = ({ a, b, w, c }) => (
   <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={c} strokeWidth={w} strokeLinecap="round" />
 );
-// contorno: ogni pezzo ha un bordo piu scuro del suo colore, cosi gli omini si staccano dagli sfondi illustrati
-const BORDO = 7;
+// contorno: ogni pezzo ha un bordo piu scuro del suo colore, cosi gli omini si staccano dagli sfondi.
+// Lo spessore (lw, in unita' del disegno) arriva da chi disegna: CONTORNO_SCHERMO / zoom della telecamera,
+// cosi' a schermo e' uguale in campo largo e in primo piano (prima ingrassava nei primi piani).
 const bordo = (c: string) => scurisci(c, 0.55);
+export const spessore = (zoom: number) => clamp(CONTORNO_SCHERMO / Math.max(0.3, zoom), 2.5, 9);
 type Tratto = [P, P, number, string];
 /** prima tutti i contorni, poi tutti i riempimenti: i pezzi di uno stesso arto si fondono senza linee in mezzo */
-const Arto: React.FC<{ tratti: Tratto[] }> = ({ tratti }) => (<>
-  {tratti.map(([a, b, w, c], i) => <Linea key={`o${i}`} a={a} b={b} w={w + BORDO} c={bordo(c)} />)}
+const Arto: React.FC<{ tratti: Tratto[]; lw: number }> = ({ tratti, lw }) => (<>
+  {tratti.map(([a, b, w, c], i) => <Linea key={`o${i}`} a={a} b={b} w={w + lw} c={bordo(c)} />)}
   {tratti.map(([a, b, w, c], i) => <Linea key={`f${i}`} a={a} b={b} w={w} c={c} />)}
 </>);
 
 // ------------------------------------------------------------------ testa
 
-const Capelli: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto: string }> = (props) => (
-  <g stroke={bordo(props.colore)} strokeWidth={4} strokeLinejoin="round"><CapelliForma {...props} /></g>
+/** sagoma a riccioli regolari lungo un arco della testa (da a0 ad a1 gradi, y verso il basso), poi
+ *  l'attaccatura dei capelli per chiudere. Riccioli piccoli e tutti uguali: i vecchi cerchi grandi e
+ *  sporgenti «sembravano un tumore» (committente, 18/11). */
+function riccioli(a0: number, a1: number, n: number, chiusura: string, R = 64, r = 8.6): string {
+  const pt = (g: number): P => [Math.cos(rad(g)) * R, Math.sin(rad(g)) * R];
+  const [x0, y0] = pt(a0);
+  let d = `M ${x0.toFixed(1)} ${y0.toFixed(1)}`;
+  for (let i = 1; i <= n; i++) {
+    const [x, y] = pt(a0 + ((a1 - a0) * i) / n);
+    d += ` A ${r} ${r} 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }
+  return `${d} ${chiusura} Z`;
+}
+/** segni di riccio dentro la capigliatura, piu' scuri: danno la trama senza cambiare la sagoma */
+const TrattiRicci: React.FC<{ colore: string; punti: P[]; lw: number }> = ({ colore, punti, lw }) => (
+  <g fill="none" stroke={scurisci(colore, 0.45)} strokeWidth={Math.max(2.5, lw * 0.7)} strokeLinecap="round">
+    {punti.map(([x, y], i) => <path key={i} d={`M ${x - 7} ${y + 2} q 4 -9 11 -3 q 3 4 -1 7`} />)}
+  </g>
 );
-const CapelliForma: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto: string }> = ({ stile, colore, berretto }) => {
+
+type PropsCapelli = { stile: Personaggio["stile"]; colore: string; berretto: string; lw: number };
+const Capelli: React.FC<PropsCapelli> = (props) => (
+  <g stroke={bordo(props.colore)} strokeWidth={props.lw / 1.1} strokeLinejoin="round"><CapelliForma {...props} /></g>
+);
+const CapelliForma: React.FC<PropsCapelli> = ({ stile, colore, berretto, lw }) => {
   const corti = "M -58 8 C -66 -40 -30 -70 6 -66 C 40 -64 58 -42 60 -18 C 46 -30 30 -34 14 -32 C -6 -30 -30 -24 -42 -6 C -46 2 -50 10 -58 8 Z";
   switch (stile.capelli) {
     case "rasati": return <path d={corti} fill={colore} opacity={0.5} />;
@@ -172,12 +197,10 @@ const CapelliForma: React.FC<{ stile: Personaggio["stile"]; colore: string; berr
       <path d={corti} fill={colore} />
       <path d="M -6 -60 C 14 -98 70 -88 66 -38 C 56 -58 34 -62 16 -50 Z" fill={colore} />
     </>);
-    case "ricci": return (<g fill={colore}>
-      <path d={corti} />
-      {[200, 222, 244, 266, 288, 310, 332, 354].map((g, i) => (
-        <circle key={i} cx={Math.cos(rad(g)) * 52 - 4} cy={Math.sin(rad(g)) * 52 - 6} r={17 - (i % 2) * 3} />
-      ))}
-    </g>);
+    case "ricci": return (<>
+      <path fill={colore} d={riccioli(158, 336, 12, "C 44 -36 24 -40 6 -36 C -16 -32 -34 -20 -42 0 C -46 10 -50 18 -59 22")} />
+      <TrattiRicci colore={colore} lw={lw} punti={[[-34, -38], [-8, -50], [18, -50], [-46, -12]]} />
+    </>);
     case "coda": return (<>
       <path d="M -52 -18 C -94 -6 -98 44 -74 76 C -70 44 -62 16 -46 2 Z" fill={colore} />
       <path d={corti} fill={colore} />
@@ -194,7 +217,8 @@ const CapelliForma: React.FC<{ stile: Personaggio["stile"]; colore: string; berr
 const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: string; sguardo: number }> = ({ e, bocca, aperti, pelle, sguardo }) => {
   const occhio = "#1C1613";
   const grandi = e === "sorpresa" || e === "spaventata";
-  const rx = grandi ? 10 : 8.5, ry = rx * 1.12 * Math.max(0.08, aperti);
+  const giu = e === "delusa"; // occhi socchiusi che guardano in basso
+  const rx = grandi ? 10 : 8.5, ry = rx * 1.12 * Math.max(0.08, aperti * (giu ? 0.62 : 1));
   const pupilla = grandi ? 3.6 : 4.6, px = 1.5 + 2 * sguardo;
   const occhi = e === "dolore"
     ? <g stroke={occhio} strokeWidth={4.5} strokeLinecap="round" fill="none"><path d="M 2 -3 Q 10 -11 18 -3" /><path d="M 26 -3 Q 34 -11 42 -3" /></g>
@@ -202,7 +226,7 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: s
         {[10, 34].map((cx) => (
           <g key={cx}>
             <ellipse cx={cx} cy={-4} rx={rx} ry={ry} fill="#FBFAF6" stroke={scurisci(pelle, 0.55)} strokeWidth={2} />
-            {aperti > 0.3 && <circle cx={cx + px} cy={-3} r={pupilla} fill={occhio} />}
+            {aperti > 0.3 && <circle cx={cx + px} cy={giu ? -1 : -3} r={giu ? 3.8 : pupilla} fill={occhio} />}
             {e === "determinata" && aperti > 0.3 && <rect x={cx - rx - 1} y={-4 - ry - 1} width={rx * 2 + 2} height={ry * 0.85} fill={pelle} />}
           </g>
         ))}
@@ -218,6 +242,7 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: s
     sprezzante: [[2, -19, 16, -18], [28, -30, 42, -28]],
     dolore: [[2, -16, 16, -28], [28, -28, 42, -16]],
     determinata: [[2, -22, 17, -17], [27, -17, 42, -22]],
+    delusa: [[2, -18, 16, -23], [28, -23, 42, -18]],
   };
   const [b1, b2] = s[e];
   const bocche: Record<Espressione, React.ReactNode> = {
@@ -230,6 +255,7 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: s
     sprezzante: <path d="M 14 29 Q 27 31 37 20" />,
     dolore: <g><rect x="12" y="22" width="26" height="12" rx="4" fill="#F4F1EA" stroke="#5A2620" strokeWidth={4} /><line x1="12" y1="28" x2="38" y2="28" /></g>,
     determinata: <path d="M 15 28 L 34 28" strokeWidth={6} />,
+    delusa: <path d="M 14 31 Q 24 26 34 31" />,
   };
   return (
     <g>
@@ -248,15 +274,25 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: s
 // ------------------------------------------------------------------ personaggio
 
 type Props = { p: Personaggio; posa: Posa; espr: Espressione; t: number; tl: number; seme: number; verso: 1 | -1;
-  parlando?: number; sguardo?: number };
+  parlando?: number; sguardo?: number; zoom?: number; vista?: Vista };
+
+/** pose in cui il corpo sta dritto: solo queste si possono disegnare di fronte o di schiena */
+const DRITTE: Posa[] = ["fermo", "parla", "fissa", "braccia_conserte", "si_gira", "esulta", "ride", "blocca", "indica"];
 
 /** disegnato con i piedi in (0, 0) e rivolto a destra: chi lo usa applica posizione, scala e verso
- *  (verso serve solo a non scrivere il numero di maglia allo specchio) */
-export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parlando = 0, sguardo = 1 }) => {
+ *  (verso serve solo a non scrivere il numero di maglia allo specchio). zoom = scala a schermo, per il contorno */
+export const Omino: React.FC<Props> = (props) => {
+  const { vista = "tre_quarti", posa } = props;
+  if (vista !== "tre_quarti" && DRITTE.includes(posa)) return <OminoDritto {...props} dietro={vista === "schiena"} />;
+  return <OminoTreQuarti {...props} />;
+};
+
+const OminoTreQuarti: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parlando = 0, sguardo = 1, zoom = 1.7 }) => {
   const A = angoli(posa, t + seme * 0.37, tl);
   const c = p.colori;
   const st = p.stile;
   const lunghe = st.vestito !== "divisa";
+  const lw = spessore(zoom);
 
   // gambe nel sistema dell'anca, poi si appoggia il piede più basso a terra
   const anP: P = [-10, 0], anA: P = [10, 0];
@@ -285,10 +321,10 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parl
     const angPiede = Math.atan2(ca[1] - gi[1], ca[0] - gi[0]) - Math.PI / 2; // la scarpa segue lo stinco
     return (
       <g>
-        <Arto tratti={lunghe ? [[an, gi, 30, pant], [gi, ca, 26, pant]]
+        <Arto lw={lw} tratti={lunghe ? [[an, gi, 30, pant], [gi, ca, 26, pant]]
           : [[an, gi, 25, pelle], [gi, ca, 22, pelle], [lungo(gi, ca, 0.38), ca, 25, calza], [an, lungo(an, gi, 0.55), 33, pant]]} />
         <g transform={`translate(${ca[0]} ${ca[1]}) rotate(${(angPiede * 180) / Math.PI})`}>
-          <rect x={-12} y={-2} width={50} height={PIEDE_H + 8} rx={9} fill={scarpa} stroke={bordo(scarpa)} strokeWidth={3.5} />
+          <rect x={-12} y={-2} width={50} height={PIEDE_H + 8} rx={9} fill={scarpa} stroke={bordo(scarpa)} strokeWidth={lw} />
           {!lunghe && <rect x={-12} y={PIEDE_H + 2} width={50} height={4} rx={2} fill={scurisci(scarpa, 0.35)} />}
         </g>
       </g>
@@ -300,10 +336,10 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parl
     const pelle = scurisci(c.pelle, k), manica = scurisci(c.maglia, k);
     return (
       <g>
-        <Arto tratti={lunghe ? [[sp, go, 25, manica], [go, ma, 22, manica]]
+        <Arto lw={lw} tratti={lunghe ? [[sp, go, 25, manica], [go, ma, 22, manica]]
           : [[sp, go, 21, pelle], [go, ma, 19, pelle], [sp, lungo(sp, go, 0.45), 27, manica]]} />
         {!dietro && st.fascia && <Linea a={lungo(sp, go, 0.16)} b={lungo(sp, go, 0.3)} w={29} c="#F2C230" />}
-        <circle cx={ma[0]} cy={ma[1]} r={14.5} fill={pelle} stroke={bordo(pelle)} strokeWidth={3.5} />
+        <circle cx={ma[0]} cy={ma[1]} r={14.5} fill={pelle} stroke={bordo(pelle)} strokeWidth={lw} />
       </g>
     );
   };
@@ -327,10 +363,10 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parl
         {gamba(anA, ginA, cavA, false)}
         {/* bacino: pantaloncini o pantaloni */}
         <path d={`M ${pt(zero, 10, -30)} L ${pt(zero, 10, 32)} L ${pt(zero, -26, 30)} L ${pt(zero, -26, -28)} Z`}
-          fill={c.pantaloni} stroke={bordo(c.pantaloni)} strokeWidth={10 + BORDO} strokeLinejoin="round" />
+          fill={c.pantaloni} stroke={bordo(c.pantaloni)} strokeWidth={10 + lw} strokeLinejoin="round" />
         <path d={`M ${pt(zero, 10, -30)} L ${pt(zero, 10, 32)} L ${pt(zero, -26, 30)} L ${pt(zero, -26, -28)} Z`}
           fill={c.pantaloni} stroke={c.pantaloni} strokeWidth={10} strokeLinejoin="round" />
-        <path d={busto} fill={c.maglia} stroke={bordo(c.maglia)} strokeWidth={12 + BORDO} strokeLinejoin="round" />
+        <path d={busto} fill={c.maglia} stroke={bordo(c.maglia)} strokeWidth={12 + lw} strokeLinejoin="round" />
         <path d={busto} fill={c.maglia} stroke={c.maglia} strokeWidth={12} strokeLinejoin="round" />
         <path d={ombra} fill="#000" opacity={0.14} />
         {st.pettorina && <path d={pettorina} fill="#CDF73A" stroke="#CDF73A" strokeWidth={6} strokeLinejoin="round" opacity={0.96} />}
@@ -340,18 +376,18 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parl
         {st.numero && !st.pettorina && (
           <g transform={`translate(${petto[0]} ${petto[1]}) rotate(${b}) scale(${verso} 1)`}>
             <text x={0} y={16} textAnchor="middle" fontFamily="Oswald, 'Arial Narrow', sans-serif" fontWeight={700} fontSize={46}
-              fill="#FFFFFF" opacity={0.92}>{st.numero}</text>
+              fill={st.numeroColore ?? BIANCO} stroke={scurisci(c.maglia, 0.5)} strokeWidth={lw * 0.6} paintOrder="stroke">{st.numero}</text>
           </g>
         )}
         {/* collo e testa */}
-        <Arto tratti={[[pt(collo, -6, 0), lungo(collo, testaC, 0.55), 26, scurisci(c.pelle, 0.12)]]} />
+        <Arto lw={lw} tratti={[[pt(collo, -6, 0), lungo(collo, testaC, 0.55), 26, scurisci(c.pelle, 0.12)]]} />
         <g transform={`translate(${testaC[0]} ${testaC[1]}) rotate(${b + A.testa}) scale(1.1)`}>
-          <circle cx={-40} cy={6} r={11} fill={scurisci(c.pelle, 0.12)} stroke={bordo(c.pelle)} strokeWidth={3.5} />
-          <circle cx={0} cy={0} r={R_TESTA + 2} fill={bordo(c.pelle)} />
+          <circle cx={-40} cy={6} r={11} fill={scurisci(c.pelle, 0.12)} stroke={bordo(c.pelle)} strokeWidth={lw / 1.1} />
+          <circle cx={0} cy={0} r={R_TESTA - 1.5 + lw / 2.2} fill={bordo(c.pelle)} />
           <circle cx={0} cy={0} r={R_TESTA - 1.5} fill={scurisci(c.pelle, 0.12)} />
           <circle cx={5} cy={-4} r={R_TESTA - 6} fill={c.pelle} />
           {st.barba && <path d="M -42 18 C -32 58 30 66 52 22 C 42 36 12 42 -10 38 C -24 34 -34 28 -42 18 Z" fill={c.capelli} opacity={0.92} />}
-          <Capelli stile={st} colore={c.capelli} berretto={c.maglia} />
+          <Capelli stile={st} colore={c.capelli} berretto={c.maglia} lw={lw} />
           <Faccia e={espr} bocca={bocca} aperti={aperti} pelle={c.pelle} sguardo={sguardo} />
           {st.baffi && <path d="M 12 17 C 20 10 34 10 42 17 C 34 21 20 21 12 17 Z" fill={c.capelli} />}
           {st.occhiali && <g fill="none" stroke="#1F1F22" strokeWidth={4}><circle cx="10" cy="-4" r="12" /><circle cx="35" cy="-4" r="12" /><path d="M 22 -4 L 23 -4 M -2 -6 L -30 -2" /></g>}
@@ -367,6 +403,134 @@ export const Omino: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parl
         {st.oggetto === "cartellina" && (
           <rect x={manoA[0] - 6} y={manoA[1] - 56} width={44} height={60} rx={4} fill="#C9A66B" />
         )}
+      </g>
+    </g>
+  );
+};
+
+// ------------------------------------------------------------------ vista di fronte e di schiena
+// Corpo simmetrico: per la scheda personaggi (fronte, schiena) e per le scene in cui qualcuno guarda in
+// camera o volta le spalle («si gira»). Solo pose dritte; le altre restano di tre quarti.
+
+const CapelliDritti: React.FC<PropsCapelli & { dietro: boolean }> = ({ stile, colore, berretto, lw, dietro }) => {
+  const corti = dietro
+    ? "M -60 12 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 12 C 46 34 -46 34 -60 12 Z"
+    : "M -60 4 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 4 C 52 -14 40 -28 22 -32 C 8 -35 -8 -35 -22 -32 C -40 -28 -52 -14 -60 4 Z";
+  let forma: React.ReactNode;
+  switch (stile.capelli) {
+    case "rasati": forma = <path d={corti} fill={colore} opacity={0.5} />; break;
+    case "ciuffo": forma = (<>
+      <path d={corti} fill={colore} />
+      {!dietro && <path d="M -14 -62 C 2 -100 62 -94 58 -46 C 46 -64 22 -68 4 -56 Z" fill={colore} />}
+    </>); break;
+    case "ricci": forma = dietro
+      ? (<><path fill={colore} d={riccioli(128, 412, 20, "Q 0 34 -39.4 50.4")} />
+          <TrattiRicci colore={colore} lw={lw} punti={[[-30, -30], [0, -44], [28, -28], [-22, 4], [18, 8]]} /></>)
+      : (<><path fill={colore} d={riccioli(152, 388, 17, "C 48 -4 30 -36 0 -38 C -30 -36 -48 -4 -56.5 30")} />
+          <TrattiRicci colore={colore} lw={lw} punti={[[-30, -46], [0, -55], [28, -46]]} /></>);
+      break;
+    case "coda": forma = (<>
+      {dietro && <path d="M -16 20 C -24 60 -10 90 0 96 C 10 90 24 60 16 20 Z" fill={colore} />}
+      <path d={corti} fill={colore} />
+    </>); break;
+    case "calvo": forma = dietro
+      ? <path d="M -60 4 C -50 34 50 34 60 4 L 54 -10 C 36 12 -36 12 -54 -10 Z" fill={colore} opacity={0.85} />
+      : (<g fill={colore} opacity={0.85}>
+          <path d="M -60 6 C -63 -12 -58 -26 -50 -32 L -46 -10 C -50 -2 -53 6 -60 6 Z" />
+          <path d="M 60 6 C 63 -12 58 -26 50 -32 L 46 -10 C 50 -2 53 6 60 6 Z" />
+        </g>); break;
+    case "cappellino": forma = (<>
+      <path d="M -62 -2 C -62 -66 62 -66 62 -2 Z" fill={berretto} />
+      {!dietro && <ellipse cx={0} cy={-2} rx={66} ry={12} fill={scurisci(berretto, 0.25)} />}
+    </>); break;
+    default: forma = <path d={corti} fill={colore} />;
+  }
+  return <g stroke={bordo(colore)} strokeWidth={lw / 1.1} strokeLinejoin="round">{forma}</g>;
+};
+
+const OminoDritto: React.FC<Props & { dietro: boolean }> = ({ p, posa, espr, t, tl, seme, verso, parlando = 0, zoom = 1.7, dietro }) => {
+  const A = angoli(posa, t + seme * 0.37, tl);
+  const c = p.colori, st = p.stile, lunghe = st.vestito !== "divisa";
+  const lw = spessore(zoom);
+  const hipY = ANCA_Y - A.salto; // anca: tutto il corpo e' disegnato da qui, con y verso l'alto negativa
+  const lampeggio = ((t + seme * 1.3) % 3.7) < 0.11 ? 0.1 : 1;
+  const aperti = Math.min(A.palpebre, lampeggio);
+  const bocca = posa === "ride" || posa === "esulta" ? A.bocca : parlando;
+  const testaY = -BUSTO - COLLO + 4;
+
+  const gamba = (s: -1 | 1) => {
+    const an: P = [s * 17, 0], ca: P = [s * 26, -hipY - PIEDE_H], gi: P = lungo(an, ca, 0.5);
+    const calza = scurisci(c.maglia, 0.08);
+    return (
+      <g key={`g${s}`}>
+        <Arto lw={lw} tratti={lunghe ? [[an, gi, 30, c.pantaloni], [gi, ca, 26, c.pantaloni]]
+          : [[an, gi, 25, c.pelle], [gi, ca, 22, c.pelle], [lungo(gi, ca, 0.38), ca, 25, calza], [an, lungo(an, gi, 0.55), 33, c.pantaloni]]} />
+        <rect x={ca[0] - 20 + s * 5} y={ca[1] - 4} width={40} height={PIEDE_H + 10} rx={10} fill={c.scarpe} stroke={bordo(c.scarpe)} strokeWidth={lw} />
+      </g>
+    );
+  };
+  // gli angoli della posa di tre quarti diventano apertura laterale del braccio e piega del gomito verso il centro
+  const mani: Record<string, P> = {};
+  const braccio = (s: -1 | 1, b: number, g: number) => {
+    const sp: P = [s * 44, -BUSTO + 28];
+    const apre = b > 120 ? 150 : 8 + Math.max(0, b - 4) * 0.4;
+    const go: P = [sp[0] + s * Math.sin(rad(apre)) * OMERO, sp[1] + Math.cos(rad(apre)) * OMERO];
+    const piega = apre - g * 0.9;
+    const ma: P = [go[0] + s * Math.sin(rad(piega)) * AVAMBRACCIO, go[1] + Math.cos(rad(piega)) * AVAMBRACCIO];
+    mani[s] = ma;
+    return (
+      <g key={`b${s}`}>
+        <Arto lw={lw} tratti={lunghe ? [[sp, go, 25, c.maglia], [go, ma, 22, c.maglia]]
+          : [[sp, go, 21, c.pelle], [go, ma, 19, c.pelle], [sp, lungo(sp, go, 0.45), 27, c.maglia]]} />
+        <circle cx={ma[0]} cy={ma[1]} r={14.5} fill={c.pelle} stroke={bordo(c.pelle)} strokeWidth={lw} />
+      </g>
+    );
+  };
+  const busto = `M -33 6 L 33 6 L 46 ${-BUSTO + 30} Q 44 ${-BUSTO + 2} 14 ${-BUSTO} L -14 ${-BUSTO} Q -44 ${-BUSTO + 2} -46 ${-BUSTO + 30} Z`;
+  const bacino = "M -32 -10 L 32 -10 L 30 26 L -30 26 Z";
+  const testoMaglia = (y: number, size: number, testo: string, k = 0.6) => (
+    <g transform={`translate(0 ${y}) scale(${verso} 1)`}>
+      <text x={0} y={size * 0.35} textAnchor="middle" fontFamily="Oswald, 'Arial Narrow', sans-serif" fontWeight={700} fontSize={size}
+        fill={st.numeroColore ?? BIANCO} stroke={scurisci(c.maglia, 0.5)} strokeWidth={lw * k} paintOrder="stroke">{testo}</text>
+    </g>
+  );
+
+  return (
+    <g>
+      <ellipse cx={0} cy={2} rx={70} ry={11} fill="#000" opacity={0.22 * (1 - A.salto / 110)} />
+      <g transform={`translate(0 ${hipY})`}>
+        {gamba(-1)}
+        {gamba(1)}
+        <path d={bacino} fill={c.pantaloni} stroke={bordo(c.pantaloni)} strokeWidth={10 + lw} strokeLinejoin="round" />
+        <path d={bacino} fill={c.pantaloni} stroke={c.pantaloni} strokeWidth={10} strokeLinejoin="round" />
+        <path d={busto} fill={c.maglia} stroke={bordo(c.maglia)} strokeWidth={12 + lw} strokeLinejoin="round" />
+        <path d={busto} fill={c.maglia} stroke={c.maglia} strokeWidth={12} strokeLinejoin="round" />
+        <path d={`M -33 6 L -12 6 L -16 ${-BUSTO + 4} L -46 ${-BUSTO + 30} Z`} fill="#000" opacity={0.12} />
+        {st.pettorina && <path d={busto} fill="#CDF73A" opacity={0.96} />}
+        {!dietro && <path d={`M -14 ${-BUSTO} L 0 ${-BUSTO + 18} L 14 ${-BUSTO}`} fill="none" stroke={scurisci(c.maglia, 0.4)} strokeWidth={lw} strokeLinejoin="round" />}
+        {st.numero && !st.pettorina && (dietro
+          ? (<>{testoMaglia(-BUSTO + 46, 26, (p.nome || "").toUpperCase(), 0.4)}{testoMaglia(-BUSTO + 118, 96, st.numero, 0.8)}</>)
+          : testoMaglia(-BUSTO * 0.5, 40, st.numero))}
+        {st.vestito === "tuta" && !dietro && <path d={`M 0 ${-BUSTO + 18} L 0 0`} stroke={scurisci(c.maglia, 0.35)} strokeWidth={lw * 0.8} />}
+        <Arto lw={lw} tratti={[[[0, -BUSTO + 6], [0, testaY + 34], 26, scurisci(c.pelle, 0.12)]]} />
+        <g transform={`translate(0 ${testaY}) scale(1.1)`}>
+          {[-1, 1].map((s) => <circle key={s} cx={s * 58} cy={6} r={11} fill={scurisci(c.pelle, 0.12)} stroke={bordo(c.pelle)} strokeWidth={lw / 1.1} />)}
+          <circle cx={0} cy={0} r={R_TESTA - 1.5 + lw / 2.2} fill={bordo(c.pelle)} />
+          <circle cx={0} cy={0} r={R_TESTA - 1.5} fill={scurisci(c.pelle, 0.12)} />
+          <circle cx={0} cy={-4} r={R_TESTA - 6} fill={c.pelle} />
+          {!dietro && st.barba && <path d="M -46 16 C -36 60 36 60 46 16 C 30 34 -30 34 -46 16 Z" fill={c.capelli} opacity={0.92} />}
+          <CapelliDritti stile={st} colore={c.capelli} berretto={c.maglia} lw={lw} dietro={dietro} />
+          {!dietro && (
+            <g transform="translate(-22 0)">
+              <Faccia e={espr} bocca={bocca} aperti={aperti} pelle={c.pelle} sguardo={-0.75} />
+              {st.baffi && <path d="M 12 17 C 20 10 34 10 42 17 C 34 21 20 21 12 17 Z" fill={c.capelli} />}
+              {st.occhiali && <g fill="none" stroke="#1F1F22" strokeWidth={4}><circle cx="10" cy="-4" r="12" /><circle cx="34" cy="-4" r="12" /></g>}
+            </g>
+          )}
+        </g>
+        {braccio(-1, A.bP, A.gP)}
+        {braccio(1, A.bA, A.gA)}
+        {st.oggetto === "cartellina" && mani[1] && <rect x={mani[1][0] - 22} y={mani[1][1] - 58} width={44} height={60} rx={4} fill="#C9A66B" stroke={bordo("#C9A66B")} strokeWidth={lw} />}
       </g>
     </g>
   );
