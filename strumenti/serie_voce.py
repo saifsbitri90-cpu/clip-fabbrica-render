@@ -90,6 +90,8 @@ def stile(pg: dict) -> dict:
     s.setdefault("barba", "barba" in testo)
     s.setdefault("baffi", "baff" in testo)
     s.setdefault("occhiali", "occhial" in testo)
+    s.setdefault("cavigliera", "cavigliera" in testo)
+    s.setdefault("fischietto", "fischiett" in testo)
     if "oggetto" not in s:
         s["oggetto"] = ("microfono" if "giornalist" in testo or "microfon" in testo
                         else "cartellina" if "cartellin" in testo else "telefono" if "telefon" in testo else None)

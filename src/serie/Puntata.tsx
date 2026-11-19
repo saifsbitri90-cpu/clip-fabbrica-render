@@ -14,7 +14,7 @@ import { Lavagna } from "./Lavagna";
 import type { Espressione, Personaggio, Posa, Posizione, PropsPuntata, Scena, Vista } from "./tipi";
 
 const TERRA = 1580; // linea dei piedi nel mondo 1080x1920
-const XPOS: Record<Posizione, number> = { sinistra: 300, centro: 540, destra: 780 };
+const XPOS: Record<Posizione, number> = { sinistra: 330, centro: 540, destra: 750 }; // piu' vicini: i corpi ora sono larghi
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const TAU = Math.PI * 2;
 // una tinta leggera per luogo, sopra fondale e personaggi: li mette nella stessa luce
@@ -75,8 +75,10 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
     fy = piuAlta + (960 - 880) / scala;
   }
   else if (r.quadro === "medio") {
-    scala = 1.9 * spinta;
     const gruppo = attori.length > 1 && r.fuoco === 0;
+    // in due nel quadro: la telecamera si allarga finche' ci stanno interi (prima uscivano ai bordi)
+    const larghezza = gruppo ? Math.max(...attori.map((a) => a.xs)) - Math.min(...attori.map((a) => a.xs)) + 320 : 0;
+    scala = (gruppo ? Math.min(1.9, 1080 / larghezza) : 1.9) * spinta;
     fx = gruppo ? attori.reduce((n, a) => n + a.xs, 0) / attori.length : f.xs;
     fy = (gruppo ? piuAlta : yTesta(f)) + (960 - 660) / scala + deriva * 6 * k;
   } else {
@@ -303,7 +305,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
       {/* musica sempre presente e bassa: «silenzio» vuol dire solo nessun effetto */}
       <Audio src={staticFile("suoni/musica.mp3")} volume={(f) => {
         const ft = f / fps;
-        return 0.075 * Math.min(1, ft / 1.2) * Math.min(1, Math.max(0, props.durata - ft) / 1.2);
+        return 0.085 * Math.min(1, ft / 1.2) * Math.min(1, Math.max(0, props.durata - ft) / 1.2);
       }} />
       {scene.map((x, i) => {
         const da = Math.round(x.da * fps), lungo = Math.max(1, Math.round((x.a - x.da) * fps));

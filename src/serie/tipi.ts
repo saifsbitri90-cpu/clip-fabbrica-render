@@ -21,6 +21,8 @@ export type Stile = {
   barba?: boolean;
   baffi?: boolean;
   occhiali?: boolean;
+  cavigliera?: boolean; // arancione, sopra lo scarpino della gamba davanti
+  fischietto?: boolean; // al collo, con il cordino
   oggetto?: "microfono" | "telefono" | "cartellina" | null;
   altezza?: number; // 0,9 - 1,1
 };

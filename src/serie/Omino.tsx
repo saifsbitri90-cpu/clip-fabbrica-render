@@ -178,6 +178,7 @@ const Linea: React.FC<{ a: P; b: P; w: number; c: string; testa?: "round" | "but
 // tratto: un solo inchiostro, l'antracite della palette (riferimento del committente, 19/11). Lo spessore
 // (lw, in unita' del disegno) e' CONTORNO_SCHERMO / zoom della telecamera: a schermo resta uguale.
 const INK = ANTRACITE;
+const CAVIGLIERA = "#F28C28"; // arancione della cavigliera di Santoro
 export const spessore = (zoom: number) => clamp(CONTORNO_SCHERMO / Math.max(0.3, zoom), 2.5, 9);
 /** luce dall'alto e davanti (nel disegno rivolto a destra) */
 const LUCE: P = [0.6, -0.8];
@@ -306,7 +307,7 @@ const Capelli: React.FC<{ stile: Personaggio["stile"]; colore: string; berretto:
   const f = formeCapelli(stile, vista);
   if (!f) return null;
   const lum = (() => { const c = rgb(colore) ?? [80, 80, 80]; return (0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]) / 255; })();
-  const chiaro = ravviva(colore, 0.9 * (1 - lum) + 0.2);
+  const chiaro = ravviva(colore, 0.45 * (1 - lum) + 0.08);
   const [cx, cy] = f.centro;
   return (
     <g opacity={f.opacita ?? 1}>
@@ -351,12 +352,12 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: s
   const occhio = "#1C1613";
   const grandi = e === "sorpresa" || e === "spaventata";
   const giu = e === "delusa";
-  const rx = grandi ? 11.5 : 10, ry = rx * 1.12 * Math.max(0.08, aperti * (giu ? 0.62 : 1));
-  const pupilla = grandi ? 4 : 5, px = 1.5 + 2 * sguardo;
+  const rx = grandi ? 13 : 11.5, ry = rx * 1.12 * Math.max(0.08, aperti * (giu ? 0.62 : 1));
+  const pupilla = grandi ? 4.5 : 5.5, px = 1.5 + 2.2 * sguardo;
   const occhi = e === "dolore"
-    ? <g stroke={INK} strokeWidth={4.5} strokeLinecap="round" fill="none"><path d="M 1 -3 Q 10 -12 19 -3" /><path d="M 26 -3 Q 35 -12 44 -3" /></g>
+    ? <g stroke={INK} strokeWidth={4.5} strokeLinecap="round" fill="none"><path d="M -2 -3 Q 8 -13 18 -3" /><path d="M 27 -3 Q 37 -13 47 -3" /></g>
     : <g>
-        {[10, 35].map((cx) => (
+        {[8, 37].map((cx) => (
           <g key={cx}>
             <ellipse cx={cx} cy={-4} rx={rx} ry={ry} fill="#FBFAF6" stroke={INK} strokeWidth={2.8} />
             {aperti > 0.3 && <circle cx={cx + px} cy={giu ? -1 : -3} r={giu ? 4 : pupilla} fill={occhio} />}
@@ -367,16 +368,16 @@ const Faccia: React.FC<{ e: Espressione; bocca: number; aperti: number; pelle: s
       </g>;
   // sopracciglia: [x1, y1, x2, y2], disegnate come archi pieni (sinistra, destra; x cresce verso il naso)
   const s: Record<Espressione, [number[], number[]]> = {
-    neutra: [[1, -21, 17, -22], [28, -22, 44, -21]],
-    felice: [[1, -24, 17, -26], [28, -26, 44, -24]],
-    arrabbiata: [[1, -25, 18, -15], [27, -15, 44, -25]],
-    triste: [[1, -18, 17, -28], [28, -28, 44, -18]],
-    sorpresa: [[1, -31, 17, -34], [28, -34, 44, -31]],
-    spaventata: [[1, -25, 17, -33], [28, -33, 44, -25]],
-    sprezzante: [[1, -20, 17, -19], [28, -31, 44, -29]],
-    dolore: [[1, -16, 17, -29], [28, -29, 44, -16]],
-    determinata: [[1, -23, 18, -17], [27, -17, 44, -23]],
-    delusa: [[1, -18, 17, -24], [28, -24, 44, -18]],
+    neutra: [[-2, -24, 16, -25], [29, -25, 47, -24]],
+    felice: [[-2, -27, 16, -29], [29, -29, 47, -27]],
+    arrabbiata: [[-2, -28, 17, -17], [28, -17, 47, -28]],
+    triste: [[-2, -20, 16, -31], [29, -31, 47, -20]],
+    sorpresa: [[-2, -34, 16, -37], [29, -37, 47, -34]],
+    spaventata: [[-2, -28, 16, -36], [29, -36, 47, -28]],
+    sprezzante: [[-2, -23, 16, -22], [29, -34, 47, -32]],
+    dolore: [[-2, -18, 16, -32], [29, -32, 47, -18]],
+    determinata: [[-2, -26, 17, -19], [28, -19, 47, -26]],
+    delusa: [[-2, -20, 16, -27], [29, -27, 47, -20]],
   };
   const arco = ([x1, y1, x2, y2]: number[]) => `M ${x1} ${y1} Q ${(x1 + x2) / 2} ${Math.min(y1, y2) - 4} ${x2} ${y2}`;
   const [b1, b2] = s[e];
@@ -500,6 +501,7 @@ const OminoTreQuarti: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, pa
         <Arto lw={lw} tratti={lunghe ? [[an, gi, 34, pant], [gi, ca, 30, pant]]
           : [[an, gi, 30, pelle], [gi, ca, 28, pelle], [lungo(gi, ca, 0.2), ca, 31, calza], [an, lungo(an, gi, 0.62), 46, pant]]} />
         {!lunghe && <Linea a={bordoCalza[0]} b={bordoCalza[1]} w={31} c={scurisci(calza, 0.25)} testa="butt" />}
+        {st.cavigliera && !dietro && <Linea a={lungo(gi, ca, 0.8)} b={lungo(gi, ca, 0.92)} w={34} c={CAVIGLIERA} testa="butt" />}
         <g transform={`translate(${ca[0]} ${ca[1]}) rotate(${(angPiede * 180) / Math.PI})`}>
           <Scarpino colore={scarpa} lw={lw} calcio={!lunghe} />
         </g>
@@ -562,12 +564,16 @@ const OminoTreQuarti: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, pa
         )}
         {/* collo e testa */}
         <Arto lw={lw} tratti={[[pt(collo, -8, 0), lungo(collo, testaC, 0.5), 30, scurisci(c.pelle, 0.18)]]} ombra={false} />
+        {st.fischietto && (<g>
+          <path d={`M ${pt(collo, -2, -10)} L ${pt(collo, -40, 10)} L ${pt(collo, -2, 13)}`} fill="none" stroke="#C9CDD2" strokeWidth={Math.max(2.5, lw * 0.6)} />
+          <rect x={pt(collo, -44, 10)[0] - 7} y={pt(collo, -44, 10)[1] - 5} width={16} height={10} rx={3} fill="#C9CDD2" stroke={INK} strokeWidth={Math.max(2, lw * 0.5)} />
+        </g>)}
         <g transform={`translate(${testaC[0]} ${testaC[1]}) rotate(${b + A.testa}) scale(1.1)`}>
           <Testa pelle={c.pelle} lw={lw} luce={[6, -5]} />
           <OmbraCapelli capelli={st.capelli} vista="tq" colore={scurisci(c.pelle, 0.24)} />
           {st.barba && <path d="M -42 18 C -32 58 30 66 52 22 C 42 36 12 42 -10 38 C -24 34 -34 28 -42 18 Z" fill={c.capelli} opacity={0.92} />}
           <Capelli stile={st} colore={c.capelli} berretto={c.maglia} lw={lw} vista="tq" />
-          <Orecchio x={-26} pelle={c.pelle} lw={lw} />
+          <Orecchio x={-33} pelle={c.pelle} lw={lw} />
           <Faccia e={espr} bocca={bocca} aperti={aperti} pelle={c.pelle} sguardo={sguardo} />
           {st.baffi && <path d="M 13 17 C 21 10 35 10 43 17 C 35 21 21 21 13 17 Z" fill={c.capelli} />}
           {st.occhiali && <g fill="none" stroke="#1F1F22" strokeWidth={4}><circle cx="10" cy="-4" r="13" /><circle cx="35" cy="-4" r="13" /><path d="M 23 -4 L 22 -4 M -3 -6 L -30 -2" /></g>}
@@ -606,6 +612,7 @@ const OminoDritto: React.FC<Props & { dietro: boolean }> = ({ p, posa, espr, t, 
         <Arto lw={lw} tratti={lunghe ? [[an, gi, 34, c.pantaloni], [gi, ca, 30, c.pantaloni]]
           : [[an, gi, 30, c.pelle], [gi, ca, 28, c.pelle], [lungo(gi, ca, 0.2), ca, 31, calza], [an, lungo(an, gi, 0.62), 46, c.pantaloni]]} />
         {!lunghe && <Linea a={lungo(gi, ca, 0.2)} b={lungo(gi, ca, 0.3)} w={31} c={scurisci(calza, 0.25)} testa="butt" />}
+        {st.cavigliera && s === 1 && <Linea a={lungo(gi, ca, 0.8)} b={lungo(gi, ca, 0.92)} w={34} c={CAVIGLIERA} testa="butt" />}
         <g transform={`translate(${ca[0] + s * 3} ${ca[1]})`}><ScarpinoDritto colore={c.scarpe} lw={lw} calcio={!lunghe} /></g>
       </g>
     );
@@ -658,6 +665,10 @@ const OminoDritto: React.FC<Props & { dietro: boolean }> = ({ p, posa, espr, t, 
           ? (<>{testoMaglia(-BUSTO + 34, Math.min(24, 108 / Math.max(1, (p.nome || "").length)), (p.nome || "").toUpperCase(), 0.4)}{testoMaglia(-BUSTO + 88, 74, st.numero, 0.8)}</>)
           : testoMaglia(-BUSTO * 0.48, 38, st.numero))}
         <Arto lw={lw} tratti={[[[0, -BUSTO + 6], [0, testaY + 34], 30, scurisci(c.pelle, 0.18)]]} ombra={false} />
+        {st.fischietto && !dietro && (<g>
+          <path d={`M -13 ${-BUSTO + 2} L 0 ${-BUSTO + 38} L 13 ${-BUSTO + 2}`} fill="none" stroke="#C9CDD2" strokeWidth={Math.max(2.5, lw * 0.6)} />
+          <rect x={-8} y={-BUSTO + 36} width={16} height={11} rx={3} fill="#C9CDD2" stroke={INK} strokeWidth={Math.max(2, lw * 0.5)} />
+        </g>)}
         <g transform={`translate(0 ${testaY}) scale(1.1)`}>
           <Testa pelle={c.pelle} lw={lw} luce={[5, -5]} />
           {!dietro && <OmbraCapelli capelli={st.capelli} vista="fronte" colore={scurisci(c.pelle, 0.24)} />}
