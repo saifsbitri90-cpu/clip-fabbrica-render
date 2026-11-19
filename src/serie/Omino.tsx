@@ -415,7 +415,7 @@ const OminoTreQuarti: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, pa
 
 const CapelliDritti: React.FC<PropsCapelli & { dietro: boolean }> = ({ stile, colore, berretto, lw, dietro }) => {
   const corti = dietro
-    ? "M -60 12 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 12 C 46 34 -46 34 -60 12 Z"
+    ? "M -60 12 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 12 L 50 22 L 44 14 L 34 26 L 26 18 L 16 28 L 8 20 L 0 30 L -8 20 L -16 28 L -26 18 L -34 26 L -44 14 L -50 22 L -60 12 Z"
     : "M -60 4 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 4 L 52 -16 L 46 -10 L 40 -30 L 32 -26 L 24 -37 L 16 -31 L 8 -38 L 0 -32 L -8 -38 L -16 -31 L -24 -37 L -32 -26 L -40 -30 L -46 -10 L -52 -16 L -60 4 Z";
   let forma: React.ReactNode;
   switch (stile.capelli) {
