@@ -83,7 +83,7 @@ def stile(pg: dict) -> dict:
         m = re.search(r"(?:numero|n\.|n°|maglia|col)\s*(\d{1,2})\b", testo)
         if m:
             s["numero"] = m.group(1)
-    if "numeroColore" not in s and re.search(r"(?:numero|n\.)\s*\d{1,2}\s+(?:dorat|d'oro|oro)", testo):
+    if "numeroColore" not in s and re.search(r"\b(?:numero|n\.)\s*\d{1,2}\s+(?:dorat|d'oro|oro)", testo):
         s["numeroColore"] = "#F5C542"  # oro della palette ufficiale
     s.setdefault("fascia", "fascia" in testo or "capitano" in testo)
     s.setdefault("pettorina", "pettorina" in testo)

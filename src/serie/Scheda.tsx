@@ -48,7 +48,7 @@ export const Scheda: React.FC<PropsPuntata> = ({ personaggi }) => {
         <line x1={60} y1={935} x2={1020} y2={935} stroke={ANTRACITE} strokeWidth={3} opacity={0.2} />
         {VISTE.map(([v], i) => (
           <g key={v} transform={`translate(${190 + i * 350} 930) scale(${S * alt})`}>
-            <Omino p={p} posa="fermo" espr="neutra" t={0} tl={0} seme={0} verso={1} zoom={S * alt} vista={v} />
+            <Omino p={p} posa="fermo" espr="neutra" t={1.7} tl={0} seme={0} verso={1} zoom={S * alt} vista={v} />
           </g>
         ))}
         {ESPRESSIONI.map(([e], i) => {
@@ -60,7 +60,7 @@ export const Scheda: React.FC<PropsPuntata> = ({ personaggi }) => {
               <svg x={cx - w / 2} y={cy - 165} width={w} height={h - 50}
                 viewBox={`${testaX - w / 2 / Z} ${testaY - 80} ${w / Z} ${(h - 50) / Z}`} overflow="hidden">
                 <g transform={`scale(${alt})`}>
-                  <Omino p={p} posa="fermo" espr={e} t={0} tl={0} seme={0} verso={1} zoom={Z * alt} />
+                  <Omino p={p} posa="fermo" espr={e} t={1.7} tl={0} seme={0} verso={1} zoom={Z * alt} />
                 </g>
               </svg>
             </g>
