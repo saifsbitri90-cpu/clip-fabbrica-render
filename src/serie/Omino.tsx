@@ -211,10 +211,30 @@ function riccioli(a0: number, a1: number, n: number, chiusura: string, R = 64, r
 }
 /** segni di riccio dentro la capigliatura, piu' scuri: danno la trama senza cambiare la sagoma */
 const TrattiRicci: React.FC<{ colore: string; punti: P[]; lw: number; chiaro?: boolean }> = ({ colore, punti, lw, chiaro }) => (
-  <g fill="none" stroke={chiaro ? schiarisci(colore, 0.32) : scurisci(colore, 0.45)} strokeWidth={Math.max(2.5, lw * 0.7)} strokeLinecap="round">
-    {punti.map(([x, y], i) => <path key={i} d={`M ${x - 7} ${y + 2} q 4 -9 11 -3 q 3 4 -1 7`} />)}
+  <g fill="none" stroke={chiaro ? schiarisci(colore, 0.22) : scurisci(colore, 0.45)} strokeWidth={Math.max(2.5, lw * 0.6)} strokeLinecap="round">
+    {punti.map(([x, y], i) => <path key={i} d={chiaro ? `M ${x - 5} ${y + 2} q 5 -6 10 0` : `M ${x - 6} ${y - 2} q 6 7 12 0`} />)}
   </g>
 );
+
+const ATTACCATURA: Record<"ricci" | "corti", { tq: P[]; fronte: P[] }> = {
+  ricci: {
+    tq: [[44, -37], [26, -41], [6, -38], [-16, -34], [-32, -24], [-40, -12]],
+    fronte: [[50, -6], [40, -28], [20, -40], [0, -42], [-20, -40], [-40, -28], [-50, -6]],
+  },
+  corti: {
+    tq: [[48, -24], [42, -34], [36, -28], [30, -37], [24, -30], [16, -38], [10, -31], [2, -38], [-6, -30], [-14, -34], [-22, -22], [-28, -26], [-36, -10], [-42, -12]],
+    fronte: [[52, -16], [46, -10], [40, -30], [32, -26], [24, -37], [16, -31], [8, -38], [0, -32], [-8, -38], [-16, -31], [-24, -37], [-32, -26], [-40, -30], [-46, -10], [-52, -16]],
+  },
+};
+/** ombra che i capelli fanno sulla fronte (luce dall'alto): una fascia sotto l'attaccatura */
+const OmbraCapelli: React.FC<{ capelli: string; vista: "tq" | "fronte"; colore: string }> = ({ capelli, vista, colore }) => {
+  const chiave = capelli === "ricci" ? "ricci" : ["corti", "ciuffo", "coda", "rasati"].includes(capelli) ? "corti" : null;
+  if (!chiave) return null;
+  const sopra = ATTACCATURA[chiave][vista];
+  const [dx, dy] = vista === "tq" ? [-3, 8] : [0, 8];
+  const sotto = sopra.map(([x, y]) => [x + dx, y + dy] as P).reverse();
+  return <path d={`M ${[...sopra, ...sotto].map((q) => `${q[0]} ${q[1]}`).join(" L ")} Z`} fill={colore} opacity={capelli === "rasati" ? 0.5 : 1} strokeLinejoin="round" />;
+};
 
 type PropsCapelli = { stile: Personaggio["stile"]; colore: string; berretto: string; lw: number; tinta?: string };
 const Capelli: React.FC<PropsCapelli> = (props) => (
@@ -329,7 +349,6 @@ export const Omino: React.FC<Props> = (props) => {
 };
 
 const OminoTreQuarti: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, parlando = 0, sguardo = 1, zoom = 1.7 }) => {
-  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   const A = angoli(posa, t + seme * 0.37, tl);
   const c = p.colori;
   const st = p.stile;
@@ -436,11 +455,7 @@ const OminoTreQuarti: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, pa
           {/* due toni: mezzaluna d'ombra dietro e sotto, faccia nella luce */}
           <circle cx={0} cy={0} r={R_TESTA - 1.5} fill={scurisci(c.pelle, 0.2)} />
           <circle cx={6} cy={-5} r={R_TESTA - 7} fill={c.pelle} />
-          {/* ombra dei capelli sulla fronte, tagliata sulla testa */}
-          <clipPath id={`testa${uid}`}><circle cx={0} cy={0} r={R_TESTA - 1.5} /></clipPath>
-          <g clipPath={`url(#testa${uid})`}><g transform="translate(-3 8)">
-            <CapelliForma stile={st} colore={c.capelli} berretto={c.maglia} lw={lw} tinta={scurisci(c.pelle, 0.24)} />
-          </g></g>
+          <OmbraCapelli capelli={st.capelli} vista="tq" colore={scurisci(c.pelle, 0.24)} />
           {st.barba && <path d="M -42 18 C -32 58 30 66 52 22 C 42 36 12 42 -10 38 C -24 34 -34 28 -42 18 Z" fill={c.capelli} opacity={0.92} />}
           <Capelli stile={st} colore={c.capelli} berretto={c.maglia} lw={lw} />
           <Faccia e={espr} bocca={bocca} aperti={aperti} pelle={c.pelle} sguardo={sguardo} />
@@ -507,7 +522,6 @@ const CapelliDritti: React.FC<PropsCapelli & { dietro: boolean }> = ({ stile, co
 };
 
 const OminoDritto: React.FC<Props & { dietro: boolean }> = ({ p, posa, espr, t, tl, seme, verso, parlando = 0, zoom = 1.7, dietro }) => {
-  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   const A = angoli(posa, t + seme * 0.37, tl);
   const c = p.colori, st = p.stile, lunghe = st.vestito !== "divisa";
   const lw = spessore(zoom);
@@ -582,12 +596,7 @@ const OminoDritto: React.FC<Props & { dietro: boolean }> = ({ p, posa, espr, t, 
           <circle cx={0} cy={0} r={R_TESTA - 1.5 + lw / 2.2} fill={bordo(c.pelle)} />
           <circle cx={0} cy={0} r={R_TESTA - 1.5} fill={scurisci(c.pelle, 0.2)} />
           <circle cx={5} cy={-5} r={R_TESTA - 7} fill={c.pelle} />
-          {!dietro && (<>
-            <clipPath id={`testa${uid}`}><circle cx={0} cy={0} r={R_TESTA - 1.5} /></clipPath>
-            <g clipPath={`url(#testa${uid})`}><g transform="translate(0 8)">
-              <CapelliDritti stile={st} colore={c.capelli} berretto={c.maglia} lw={lw} dietro={false} tinta={scurisci(c.pelle, 0.24)} />
-            </g></g>
-          </>)}
+          {!dietro && <OmbraCapelli capelli={st.capelli} vista="fronte" colore={scurisci(c.pelle, 0.24)} />}
           {!dietro && st.barba && <path d="M -46 16 C -36 60 36 60 46 16 C 30 34 -30 34 -46 16 Z" fill={c.capelli} opacity={0.92} />}
           <CapelliDritti stile={st} colore={c.capelli} berretto={c.maglia} lw={lw} dietro={dietro} />
           {!dietro && (
