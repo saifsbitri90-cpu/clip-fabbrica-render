@@ -4,7 +4,7 @@
 // Tutto dipende dal fotogramma: niente stato, niente casualità, render ripetibile.
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
-import { ALTEZZA_TESTA, ISTANTE_CALCIO, ISTANTE_LANCIO, Omino, spessore } from "./Omino";
+import { ABBASSA, ALTEZZA_TESTA, ANCA_SEDUTO, ISTANTE_CALCIO, ISTANTE_LANCIO, Omino, spessore } from "./Omino";
 import { ANTRACITE, BIANCO, ORO } from "./palette";
 import { OSWALD } from "./font";
 import { Sfondo, type Camera } from "./Sfondo";
@@ -56,7 +56,10 @@ function riprese(s: Scena, ids: string[], parlante: string | null): Ripresa[] {
 }
 
 /** quanto si abbassa la testa rispetto all'in piedi */
-const abbassa = (posa: Posa, tl: number) => (posa === "seduto" ? 110 : posa === "a_terra" ? 300 : posa === "cade" ? 300 * Math.min(1, Math.max(0, (tl - 0.15) / 0.7)) : 0);
+const abbassa = (posa: Posa, tl: number) => (posa === "seduto" ? ABBASSA.seduto : posa === "a_terra" ? ABBASSA.terra
+  : posa === "cade" ? ABBASSA.terra * Math.min(1, Math.max(0, (tl - 0.15) / 0.7)) : 0);
+/** altezza della testa nel mondo (y) per un attore, seduto o a terra compresi */
+const yTesta = (a: { p: Personaggio; posa: Posa; tl: number }) => TERRA - ALTEZZA_TESTA * (a.p.stile.altezza ?? 1) + abbassa(a.posa, a.tl);
 
 function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: boolean): { ch: Camera; bg: Camera } {
   const k = interpolate(t, [r.da, r.a], [0, 1], clamp);
@@ -64,15 +67,18 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
   const deriva = (r.da * 37) % 2 > 1 ? 1 : -1; // verso della deriva, diverso da ripresa a ripresa
   const f = attori[Math.min(r.fuoco, attori.length - 1)];
   let scala = 1, fx = 540, fy = 990;
+  // le inquadrature mettono la testa piu' alta a un'altezza fissa dello schermo: la scritta (fondo a 1420)
+  // resta sotto le teste e sopra i piedi
+  const piuAlta = attori.length ? Math.min(...attori.map(yTesta)) : TERRA - ALTEZZA_TESTA;
   if (r.quadro === "largo" || !f) {
-    // un po' piu' vicino e piu' in basso: la testa (anche di chi e' seduto) resta sopra la scritta, che sta a y 1190
-    scala = 1.12 * spinta; fx = 540 + deriva * 14 * k;
-    fy = attori.some((a) => a.posa === "seduto" || a.posa === "cade" || a.posa === "a_terra") ? 1160 : 1050;
+    scala = 1.3 * spinta; fx = 540 + deriva * 14 * k;
+    fy = piuAlta + (960 - 880) / scala;
   }
   else if (r.quadro === "medio") {
-    scala = 1.72 * spinta;
-    fx = attori.length > 1 && r.fuoco === 0 ? attori.reduce((n, a) => n + a.xs, 0) / attori.length : f.xs;
-    fy = TERRA - 320 + abbassa(f.posa, f.tl) * 0.6 + deriva * 8 * k;
+    scala = 1.9 * spinta;
+    const gruppo = attori.length > 1 && r.fuoco === 0;
+    fx = gruppo ? attori.reduce((n, a) => n + a.xs, 0) / attori.length : f.xs;
+    fy = (gruppo ? piuAlta : yTesta(f)) + (960 - 660) / scala + deriva * 6 * k;
   } else {
     // primo piano: testa e spalle, testa a y ~780 cosi' il numero di maglia resta sopra la scritta (fondo a 1420).
     // Con un braccio teso la telecamera si allarga e si sposta verso il gesto: la mano resta nel quadro
@@ -80,7 +86,7 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
     scala = (gesto ? 2.35 : 2.9) * spinta;
     const altezza = (f.p.stile.altezza ?? 1);
     fx = f.xs + f.verso * (gesto ? 75 : 18) + deriva * 6 * k;
-    fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 62;
+    fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 48;
   }
   fx = Math.min(Math.max(fx, 540 / scala), 1080 - 540 / scala); // mai fuori dal mondo
   const bgScala = (1 + (scala - 1) * 0.3) * (corre ? 1.18 : 1);
@@ -100,11 +106,13 @@ function versi(s: Scena): (1 | -1)[] {
   });
 }
 
+/** piano della panchina: sotto il bacino di chi e' seduto (anca + 30) */
+const SEDILE = TERRA + ANCA_SEDUTO + 30;
 const Panchina: React.FC<{ da: number; a: number; lw: number }> = ({ da, a, lw }) => (
   <g stroke={ANTRACITE} strokeWidth={lw} strokeLinejoin="round">
-    {[da + 30, a - 30, (da + a) / 2].map((x, i) => <rect key={i} x={x - 9} y={TERRA - 110} width={18} height={110} fill="#2E3742" />)}
-    <rect x={da} y={TERRA - 132} width={a - da} height={26} rx={8} fill="#5C6E82" />
-    <rect x={da} y={TERRA - 240} width={a - da} height={84} rx={14} fill="#4A5B6E" />
+    {[da + 30, a - 30, (da + a) / 2].map((x, i) => <rect key={i} x={x - 9} y={SEDILE + 20} width={18} height={TERRA - SEDILE - 20} fill="#2E3742" />)}
+    <rect x={da} y={SEDILE} width={a - da} height={22} rx={8} fill="#5C6E82" />
+    <rect x={da} y={SEDILE - 104} width={a - da} height={70} rx={14} fill="#4A5B6E" />
   </g>
 );
 
@@ -195,7 +203,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
   const scelta = s.cartello?.tipo === "scelta" || t >= props.scelta.da;
   // nel finale A/B i personaggi scendono nella meta' bassa: sopra ci sono domanda e opzioni, nessuno coperto
   const { ch, bg } = scelta
-    ? { ch: { scala: 1, fx: 540, fy: 861, blur: 0, panX: 0 }, bg: { scala: 1, fx: 540, fy: 930, blur: 0, panX: 0 } }
+    ? { ch: { scala: 1.15, fx: 540, fy: TERRA - ALTEZZA_TESTA - (1180 - 960) / 1.15, blur: 0, panX: 0 }, bg: { scala: 1, fx: 540, fy: 930, blur: 0, panX: 0 } }
     : camere(r, attori, t, tl, corre);
   const tipo = s.cartello?.tipo;
   const tlc = s === scene[0] ? tl - 2.5 : tl; // nella prima scena il cartello entra dopo il badge grande
@@ -235,14 +243,14 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
             return `${Math.cos(g) * rr},${Math.sin(g) * rr}`;
           }).join(" ");
           return (
-            <g key={`b${i}`} transform={`translate(${a.xs + a.verso * 34} ${TERRA - 150}) scale(${sc})`} opacity={1 - k * 0.6}>
+            <g key={`b${i}`} transform={`translate(${a.xs + a.verso * 30} ${TERRA - 105}) scale(${sc})`} opacity={1 - k * 0.6}>
               <polygon points={punte} fill={ORO} stroke={ANTRACITE} strokeWidth={6} strokeLinejoin="round" />
             </g>
           );
         })}
         {calciatore && (() => {
           const d = tl - ISTANTE_CALCIO;
-          const x0 = calciatore.x + calciatore.verso * 62;
+          const x0 = calciatore.x + calciatore.verso * 50;
           if (d < 0) return <Pallone x={x0} y={TERRA - 19} giro={0} />;
           return <Pallone x={x0 + calciatore.verso * 1500 * d} y={TERRA - 19 - 900 * d + 600 * d * d} giro={d * 900} />;
         })()}
@@ -275,7 +283,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
         const hx = 540 + (a.xs + a.verso * 12 * alt - ch.fx) * ch.scala;
         const hy = 960 + (TERRA - ALTEZZA_TESTA * alt + abbassa(a.posa, a.tl) - ch.fy) * ch.scala;
         const k = Math.min(1, (tl - 0.4) / 0.2) * Math.min(1, (2.3 - tl) / 0.2);
-        return <TuEtichetta x={hx} y={hy} r={74 * alt * ch.scala} k={k} nome={a.p.nome} numero={a.p.stile.numero} />;
+        return <TuEtichetta x={hx} y={hy} r={96 * alt * ch.scala} k={k} nome={a.p.nome} numero={a.p.stile.numero} />;
       })()}
       {tipo === "contatore" && s.cartello && <Contatore testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
       {tipo === "tabellone" && s.cartello && <Tabellone testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}

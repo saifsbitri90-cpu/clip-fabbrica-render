@@ -26,9 +26,9 @@ export const Scheda: React.FC<PropsPuntata> = ({ personaggi }) => {
   const p = personaggi[frame % Math.max(1, personaggi.length)];
   if (!p) return <AbsoluteFill style={{ background: FONDO }} />;
   const alt = p.stile.altezza ?? 1;
-  const S = 1.12; // figure intere
-  const Z = 1.7; // primi piani delle espressioni: testa intera con un po' di collo
-  const testaX = 9 * alt, testaY = -ALTEZZA_TESTA * alt; // centro della testa nella posa ferma di tre quarti
+  const S = 1.3; // figure intere
+  const Z = 1.4; // primi piani delle espressioni: testa intera coi capelli e un po' di collo
+  const testaX = 7 * alt, testaY = -ALTEZZA_TESTA * alt; // centro della testa nella posa ferma di tre quarti
   const cella = (i: number) => ({ cx: 190 + (i % 3) * 350, cy: 1200 + Math.floor(i / 3) * 385 });
   return (
     <AbsoluteFill style={{ background: FONDO }}>
@@ -58,7 +58,7 @@ export const Scheda: React.FC<PropsPuntata> = ({ personaggi }) => {
             <g key={e}>
               <rect x={cx - w / 2} y={cy - 165} width={w} height={h} rx={24} fill={BIANCO} stroke={ANTRACITE} strokeWidth={4} />
               <svg x={cx - w / 2} y={cy - 165} width={w} height={h - 50}
-                viewBox={`${testaX - w / 2 / Z} ${testaY - 80} ${w / Z} ${(h - 50) / Z}`} overflow="hidden">
+                viewBox={`${testaX - w / 2 / Z} ${testaY - 110} ${w / Z} ${(h - 50) / Z}`} overflow="hidden">
                 <g transform={`scale(${alt})`}>
                   <Omino p={p} posa="fermo" espr={e} t={1.7} tl={0} seme={0} verso={1} zoom={Z * alt} />
                 </g>
