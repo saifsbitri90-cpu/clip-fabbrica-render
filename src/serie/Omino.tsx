@@ -185,19 +185,13 @@ const TrattiRicci: React.FC<{ colore: string; punti: P[]; lw: number }> = ({ col
   </g>
 );
 
-/** ciocche dei capelli corti: tratti brevi e inclinati (x, y, angolo) */
-const Ciocche: React.FC<{ colore: string; punti: [number, number, number][]; lw: number }> = ({ colore, punti, lw }) => (
-  <g fill="none" stroke={scurisci(colore, 0.35)} strokeWidth={Math.max(2.5, lw * 0.7)} strokeLinecap="round">
-    {punti.map(([x, y, g], i) => <path key={i} d={`M ${x} ${y} q ${6 + g * 0.3} ${-4} ${14} ${-2 - g * 0.4}`} />)}
-  </g>
-);
-
 type PropsCapelli = { stile: Personaggio["stile"]; colore: string; berretto: string; lw: number };
 const Capelli: React.FC<PropsCapelli> = (props) => (
   <g stroke={bordo(props.colore)} strokeWidth={props.lw / 1.1} strokeLinejoin="round"><CapelliForma {...props} /></g>
 );
 const CapelliForma: React.FC<PropsCapelli> = ({ stile, colore, berretto, lw }) => {
-  const corti = "M -58 8 C -66 -40 -30 -70 6 -66 C 40 -64 58 -42 60 -18 C 46 -30 30 -34 14 -32 C -6 -30 -30 -24 -42 -6 C -46 2 -50 10 -58 8 Z";
+  // attaccatura a ciuffi: con la curva liscia i capelli corti sembravano una cuffia (scheda del 19/11)
+  const corti = "M -58 8 C -66 -40 -30 -70 6 -66 C 40 -64 58 -42 60 -18 L 52 -30 L 48 -24 L 42 -34 L 36 -28 L 30 -37 L 24 -30 L 16 -38 L 10 -31 L 2 -38 L -6 -30 L -14 -34 L -22 -22 L -28 -26 L -36 -10 L -42 -12 L -48 4 L -58 8 Z";
   switch (stile.capelli) {
     case "rasati": return <path d={corti} fill={colore} opacity={0.5} />;
     case "ciuffo": return (<>
@@ -217,10 +211,7 @@ const CapelliForma: React.FC<PropsCapelli> = ({ stile, colore, berretto, lw }) =
       <path d="M -61 -4 C -62 -62 52 -70 60 -12 Z" fill={berretto} />
       <path d="M 38 -16 C 70 -20 94 -12 99 -3 C 78 -5 56 -6 36 -5 Z" fill={scurisci(berretto, 0.25)} />
     </>);
-    default: return (<>
-      <path d={corti} fill={colore} />
-      <Ciocche colore={colore} lw={lw} punti={[[-40, -30, 10], [-14, -50, 8], [14, -52, 6], [36, -42, 4]]} />
-    </>);
+    default: return <path d={corti} fill={colore} />;
   }
 };
 
@@ -425,7 +416,7 @@ const OminoTreQuarti: React.FC<Props> = ({ p, posa, espr, t, tl, seme, verso, pa
 const CapelliDritti: React.FC<PropsCapelli & { dietro: boolean }> = ({ stile, colore, berretto, lw, dietro }) => {
   const corti = dietro
     ? "M -60 12 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 12 C 46 34 -46 34 -60 12 Z"
-    : "M -60 4 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 4 C 52 -14 40 -28 22 -32 C 8 -35 -8 -35 -22 -32 C -40 -28 -52 -14 -60 4 Z";
+    : "M -60 4 C -66 -46 -30 -70 0 -70 C 30 -70 66 -46 60 4 L 52 -16 L 46 -10 L 40 -30 L 32 -26 L 24 -37 L 16 -31 L 8 -38 L 0 -32 L -8 -38 L -16 -31 L -24 -37 L -32 -26 L -40 -30 L -46 -10 L -52 -16 L -60 4 Z";
   let forma: React.ReactNode;
   switch (stile.capelli) {
     case "rasati": forma = <path d={corti} fill={colore} opacity={0.5} />; break;
@@ -453,7 +444,7 @@ const CapelliDritti: React.FC<PropsCapelli & { dietro: boolean }> = ({ stile, co
       <path d="M -62 -2 C -62 -66 62 -66 62 -2 Z" fill={berretto} />
       {!dietro && <ellipse cx={0} cy={-2} rx={66} ry={12} fill={scurisci(berretto, 0.25)} />}
     </>); break;
-    default: forma = (<><path d={corti} fill={colore} /><Ciocche colore={colore} lw={lw} punti={dietro ? [[-36, -34, 6], [-8, -48, 4], [18, -40, 2], [-20, 0, 4], [10, 4, 2]] : [[-34, -44, 6], [-6, -54, 4], [20, -48, 2]]} /></>);
+    default: forma = <path d={corti} fill={colore} />;
   }
   return <g stroke={bordo(colore)} strokeWidth={lw / 1.1} strokeLinejoin="round">{forma}</g>;
 };
@@ -519,7 +510,7 @@ const OminoDritto: React.FC<Props & { dietro: boolean }> = ({ p, posa, espr, t, 
         {st.pettorina && <path d={busto} fill="#CDF73A" opacity={0.96} />}
         {!dietro && <path d={`M -14 ${-BUSTO} L 0 ${-BUSTO + 18} L 14 ${-BUSTO}`} fill="none" stroke={scurisci(c.maglia, 0.4)} strokeWidth={lw} strokeLinejoin="round" />}
         {st.numero && !st.pettorina && (dietro
-          ? (<>{testoMaglia(-BUSTO + 46, Math.min(26, 150 / Math.max(1, (p.nome || "").length)), (p.nome || "").toUpperCase(), 0.4)}{testoMaglia(-BUSTO + 118, 96, st.numero, 0.8)}</>)
+          ? (<>{testoMaglia(-BUSTO + 46, Math.min(26, 108 / Math.max(1, (p.nome || "").length)), (p.nome || "").toUpperCase(), 0.4)}{testoMaglia(-BUSTO + 118, 96, st.numero, 0.8)}</>)
           : testoMaglia(-BUSTO * 0.5, 40, st.numero))}
         {st.vestito === "tuta" && !dietro && <path d={`M 0 ${-BUSTO + 18} L 0 0`} stroke={scurisci(c.maglia, 0.35)} strokeWidth={lw * 0.8} />}
         <Arto lw={lw} tratti={[[[0, -BUSTO + 6], [0, testaY + 34], 26, scurisci(c.pelle, 0.12)]]} />
