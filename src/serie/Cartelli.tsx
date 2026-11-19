@@ -56,14 +56,20 @@ const conta = (valore: string, tl: number) => {
   return String(Math.round(n * interpolate(tl, [0.25, 0.9], [0, 1], clamp)));
 };
 
+/** contatore basso e in orizzontale (scritta a sinistra su due righe, numero oro a destra): alto ~160 px,
+ *  finisce a y 500 e non copre la testa nei primi piani (la versione alta arrivava a y 660) */
 export const Contatore: React.FC<{ testo: string; valore: string; tl: number; fps: number }> = ({ testo, valore, tl, fps }) => {
   const k = molla(tl, fps, 0.1);
+  const parole = testo.trim().split(/\s+/);
+  const meta = Math.ceil(parole.length / 2);
   return (
-    <div style={{ position: "absolute", left: 60, right: 230, top: 360, display: "flex", justifyContent: "center", transform: `scale(${k})`, opacity: k }}>
-      <div style={{ background: ANTRACITE, borderRadius: 24, padding: "22px 54px 14px", minWidth: 400, display: "flex", flexDirection: "column",
-        alignItems: "center", boxShadow: ombraPannello, border: `4px solid ${ORO}` }}>
-        <div style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: 42, letterSpacing: 4, color: BIANCO, textTransform: "uppercase" }}>{testo}</div>
-        <div style={{ fontFamily: OSWALD, fontWeight: 700, fontSize: 190, lineHeight: 1.02, color: ORO, fontVariantNumeric: "tabular-nums" }}>{conta(valore, tl)}</div>
+    <div style={{ position: "absolute", left: 60, right: 230, top: 340, display: "flex", justifyContent: "center", transform: `scale(${k})`, opacity: k }}>
+      <div style={{ background: ANTRACITE, borderRadius: 20, padding: "8px 34px", display: "flex", alignItems: "center", gap: 26,
+        boxShadow: ombraPannello, border: `4px solid ${ORO}` }}>
+        <div style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: 40, letterSpacing: 3, color: BIANCO, textTransform: "uppercase", lineHeight: 1.1, textAlign: "right" }}>
+          {parole.slice(0, meta).join(" ")}<br />{parole.slice(meta).join(" ")}
+        </div>
+        <div style={{ fontFamily: OSWALD, fontWeight: 700, fontSize: 132, lineHeight: 1.02, color: ORO, fontVariantNumeric: "tabular-nums" }}>{conta(valore, tl)}</div>
       </div>
     </div>
   );

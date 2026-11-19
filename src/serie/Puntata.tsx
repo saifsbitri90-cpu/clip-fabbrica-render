@@ -115,19 +115,23 @@ const Pallone: React.FC<{ x: number; y: number; giro: number }> = ({ x, y, giro 
   </g>
 );
 
-/** «TU · GIÒ 22» con la punta verso la testa del protagonista */
-const TuEtichetta: React.FC<{ x: number; y: number; k: number; nome: string; numero?: string }> = ({ x, y, k, nome, numero }) => {
-  const cx = Math.min(Math.max(x, 220), 630);
+/** «TU / GIÒ · 22» accanto alla testa del protagonista, con la punta verso di lui. Di lato e non sopra:
+ *  sopra la testa c'e' il titolo (prima l'etichetta finiva sotto «GIORNO 1» e non si leggeva) */
+const TuEtichetta: React.FC<{ x: number; y: number; r: number; k: number; nome: string; numero?: string }> = ({ x, y, r, k, nome, numero }) => {
+  const W = 200;
+  const aSinistra = x - r - 18 - W >= 24;
+  const left = aSinistra ? x - r - 18 - W : Math.min(x + r + 18, 850 - W);
+  const punta = 22;
   return (
-    <div style={{ position: "absolute", left: cx - 200, width: 400, top: y - 124, display: "flex", flexDirection: "column", alignItems: "center",
-      opacity: k, transform: `translateY(${(1 - k) * 20}px)` }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 14, background: BIANCO, border: `5px solid ${ANTRACITE}`, borderRadius: 14, padding: "0 22px",
-        fontFamily: OSWALD, fontWeight: 700, color: ANTRACITE, textTransform: "uppercase" }}>
-        <span style={{ fontSize: 72, lineHeight: 1.15 }}>TU</span>
-        <span style={{ fontSize: 38, letterSpacing: 2 }}>{nome}{numero ? ` · ${numero}` : ""}</span>
+    <div style={{ position: "absolute", left, top: y - 70, width: W, display: "flex", alignItems: "center", flexDirection: aSinistra ? "row" : "row-reverse",
+      opacity: k, transform: `translateX(${(1 - k) * (aSinistra ? -24 : 24)}px)` }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", background: BIANCO, border: `5px solid ${ANTRACITE}`, borderRadius: 14,
+        padding: "2px 8px 6px", fontFamily: OSWALD, fontWeight: 700, color: ANTRACITE, textTransform: "uppercase", lineHeight: 1 }}>
+        <span style={{ fontSize: 76 }}>TU</span>
+        <span style={{ fontSize: 30, letterSpacing: 2, whiteSpace: "nowrap" }}>{nome}{numero ? ` · ${numero}` : ""}</span>
       </div>
-      <div style={{ width: 0, height: 0, borderLeft: "20px solid transparent", borderRight: "20px solid transparent", borderTop: `24px solid ${ANTRACITE}`,
-        marginLeft: (x - cx) * 2 }} />
+      <div style={{ width: 0, height: 0, borderTop: `${punta}px solid transparent`, borderBottom: `${punta}px solid transparent`,
+        [aSinistra ? "borderLeft" : "borderRight"]: `${punta + 4}px solid ${ANTRACITE}` }} />
     </div>
   );
 };
@@ -175,9 +179,9 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
     if (pr.posa === "cammina" || pr.posa === "zoppica" || pr.posa === "corre") {
       // chi non c'era entra da fuori campo; chi c'era fa qualche passo; poi si ferma (niente camminata sul posto)
       const entra = !prima?.personaggi.some((q) => q.id === pr.id);
-      const dur = pr.posa === "zoppica" ? 1.9 : pr.posa === "corre" ? 0.8 : 1.3;
-      const k = Math.min(1, Math.max(0, tl / dur)), kk = k * k * (3 - 2 * k);
-      xs = x - verso * (entra ? 620 : 100) * (1 - kk);
+      const dur = pr.posa === "zoppica" ? 1.5 : pr.posa === "corre" ? 0.7 : 1.1;
+      const k = Math.min(1, Math.max(0, tl / dur)), kk = k * (2 - k); // parte svelto e rallenta arrivando
+      xs = x - verso * (entra ? 430 : 100) * (1 - kk);
       if (k >= 1 && pr.posa !== "corre") { posa = "fermo"; tlA = tl; }
     }
     if (pr.posa === "blocca") xs = x + verso * 40 * Math.min(1, Math.max(0, tlA / 0.3));
@@ -268,10 +272,10 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
         const a = attori.find((x) => x.id === "tu");
         if (!a) return null;
         const alt = a.p.stile.altezza ?? 1;
-        const hx = 540 + (a.xs + a.verso * 20 * alt - ch.fx) * ch.scala;
-        const hy = 960 + (TERRA - ALTEZZA_TESTA * alt + abbassa(a.posa, a.tl) - ch.fy) * ch.scala - 82 * alt * ch.scala;
+        const hx = 540 + (a.xs + a.verso * 12 * alt - ch.fx) * ch.scala;
+        const hy = 960 + (TERRA - ALTEZZA_TESTA * alt + abbassa(a.posa, a.tl) - ch.fy) * ch.scala;
         const k = Math.min(1, (tl - 0.4) / 0.2) * Math.min(1, (2.3 - tl) / 0.2);
-        return <TuEtichetta x={hx} y={hy} k={k} nome={a.p.nome} numero={a.p.stile.numero} />;
+        return <TuEtichetta x={hx} y={hy} r={74 * alt * ch.scala} k={k} nome={a.p.nome} numero={a.p.stile.numero} />;
       })()}
       {tipo === "contatore" && s.cartello && <Contatore testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
       {tipo === "tabellone" && s.cartello && <Tabellone testo={s.cartello.testo} valore={s.cartello.valore} tl={tlc} fps={fps} />}
