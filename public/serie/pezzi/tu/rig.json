@@ -1,0 +1,454 @@
+{
+ "id": "tu",
+ "overlap": 0.17,
+ "testa_dx": 0.04,
+ "rhubarb": {
+  "A": "21",
+  "B": "36",
+  "C": "37",
+  "D": "39",
+  "E": "26",
+  "F": "20",
+  "G": "23",
+  "H": "37",
+  "X": "34"
+ },
+ "riposo": {
+  "neutra": "21",
+  "sorpresa": "40",
+  "determinata": "21",
+  "spaventata": "38",
+  "triste": "35",
+  "arrabbiata": "24",
+  "dolore": "38",
+  "felice": "33",
+  "delusa": "35"
+ },
+ "pose": {
+  "si_alza": {
+   "dx": 0.06,
+   "dy": 0.0,
+   "rot": 10
+  },
+  "seduto": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "rot": 0
+  }
+ },
+ "set": {
+  "dx": {
+   "corpi": {
+    "seduto": {
+     "f": "tu/dx/corpo_seduto.png",
+     "w": 256,
+     "h": 396,
+     "s": 1.0,
+     "collo": [
+      112,
+      3
+     ]
+    },
+    "si_alza": {
+     "f": "tu/dx/corpo_si_alza.png",
+     "w": 244,
+     "h": 452,
+     "s": 1.0,
+     "collo": [
+      142,
+      3
+     ]
+    },
+    "in_piedi": {
+     "f": "tu/dx/corpo_in_piedi.png",
+     "w": 200,
+     "h": 500,
+     "s": 1.0,
+     "collo": [
+      95,
+      5
+     ]
+    },
+    "fronte": {
+     "f": "tu/dx/corpo_fronte.png",
+     "w": 216,
+     "h": 496,
+     "s": 1.0,
+     "collo": [
+      98,
+      4
+     ]
+    }
+   },
+   "teste": {
+    "sorpresa": {
+     "f": "tu/dx/testa_sorpresa.png",
+     "w": 288,
+     "h": 288,
+     "s": 0.87,
+     "bocca": [
+      0.66,
+      0.82
+     ]
+    },
+    "spaventata": {
+     "f": "tu/dx/testa_spaventata.png",
+     "w": 288,
+     "h": 288,
+     "s": 0.87,
+     "bocca": [
+      0.66,
+      0.82
+     ]
+    },
+    "determinata": {
+     "f": "tu/dx/testa_determinata.png",
+     "w": 276,
+     "h": 288,
+     "s": 0.87,
+     "bocca": [
+      0.66,
+      0.82
+     ]
+    },
+    "neutra": {
+     "f": "tu/dx/testa_neutra.png",
+     "w": 276,
+     "h": 284,
+     "s": 0.87,
+     "bocca": [
+      0.66,
+      0.82
+     ]
+    },
+    "occhi_chiusi": {
+     "f": "tu/dx/testa_occhi_chiusi.png",
+     "w": 272,
+     "h": 284,
+     "s": 0.87,
+     "bocca": [
+      0.66,
+      0.82
+     ]
+    },
+    "fronte_neutra": {
+     "f": "tu/dx/testa_fronte_neutra.png",
+     "w": 174,
+     "h": 204,
+     "s": 1.44,
+     "bocca": [
+      0.5,
+      0.79
+     ]
+    },
+    "fronte_triste": {
+     "f": "tu/dx/testa_fronte_triste.png",
+     "w": 171,
+     "h": 204,
+     "s": 1.44,
+     "bocca": [
+      0.5,
+      0.79
+     ]
+    },
+    "fronte_occhi_chiusi": {
+     "f": "tu/dx/testa_fronte_occhi_chiusi.png",
+     "w": 169,
+     "h": 204,
+     "s": 1.44,
+     "bocca": [
+      0.5,
+      0.79
+     ]
+    }
+   },
+   "bocche": {
+    "20": {
+     "f": "tu/dx/bocca_20.png",
+     "w": 40,
+     "h": 14,
+     "s": 0.8
+    },
+    "21": {
+     "f": "tu/dx/bocca_21.png",
+     "w": 38,
+     "h": 3,
+     "s": 0.8
+    },
+    "23": {
+     "f": "tu/dx/bocca_23.png",
+     "w": 47,
+     "h": 19,
+     "s": 0.8
+    },
+    "24": {
+     "f": "tu/dx/bocca_24.png",
+     "w": 47,
+     "h": 20,
+     "s": 0.8
+    },
+    "26": {
+     "f": "tu/dx/bocca_26.png",
+     "w": 51,
+     "h": 28,
+     "s": 0.8
+    },
+    "33": {
+     "f": "tu/dx/bocca_33.png",
+     "w": 48,
+     "h": 16,
+     "s": 0.8
+    },
+    "34": {
+     "f": "tu/dx/bocca_34.png",
+     "w": 43,
+     "h": 3,
+     "s": 0.8
+    },
+    "35": {
+     "f": "tu/dx/bocca_35.png",
+     "w": 50,
+     "h": 15,
+     "s": 0.8
+    },
+    "36": {
+     "f": "tu/dx/bocca_36.png",
+     "w": 36,
+     "h": 14,
+     "s": 0.8
+    },
+    "37": {
+     "f": "tu/dx/bocca_37.png",
+     "w": 46,
+     "h": 16,
+     "s": 0.8
+    },
+    "38": {
+     "f": "tu/dx/bocca_38.png",
+     "w": 46,
+     "h": 19,
+     "s": 0.8
+    },
+    "39": {
+     "f": "tu/dx/bocca_39.png",
+     "w": 43,
+     "h": 27,
+     "s": 0.8
+    },
+    "40": {
+     "f": "tu/dx/bocca_40.png",
+     "w": 46,
+     "h": 25,
+     "s": 0.8
+    }
+   }
+  },
+  "sx": {
+   "corpi": {
+    "seduto": {
+     "f": "tu/sx/corpo_seduto.png",
+     "w": 256,
+     "h": 396,
+     "s": 1.0,
+     "collo": [
+      142,
+      3
+     ]
+    },
+    "si_alza": {
+     "f": "tu/sx/corpo_si_alza.png",
+     "w": 244,
+     "h": 452,
+     "s": 1.0,
+     "collo": [
+      100,
+      3
+     ]
+    },
+    "in_piedi": {
+     "f": "tu/sx/corpo_in_piedi.png",
+     "w": 200,
+     "h": 500,
+     "s": 1.0,
+     "collo": [
+      104,
+      5
+     ]
+    },
+    "fronte": {
+     "f": "tu/sx/corpo_fronte.png",
+     "w": 216,
+     "h": 496,
+     "s": 1.0,
+     "collo": [
+      98,
+      4
+     ]
+    }
+   },
+   "teste": {
+    "sorpresa": {
+     "f": "tu/sx/testa_sorpresa.png",
+     "w": 288,
+     "h": 288,
+     "s": 0.87,
+     "bocca": [
+      0.34,
+      0.82
+     ]
+    },
+    "spaventata": {
+     "f": "tu/sx/testa_spaventata.png",
+     "w": 288,
+     "h": 288,
+     "s": 0.87,
+     "bocca": [
+      0.34,
+      0.82
+     ]
+    },
+    "determinata": {
+     "f": "tu/sx/testa_determinata.png",
+     "w": 276,
+     "h": 288,
+     "s": 0.87,
+     "bocca": [
+      0.34,
+      0.82
+     ]
+    },
+    "neutra": {
+     "f": "tu/sx/testa_neutra.png",
+     "w": 276,
+     "h": 284,
+     "s": 0.87,
+     "bocca": [
+      0.34,
+      0.82
+     ]
+    },
+    "occhi_chiusi": {
+     "f": "tu/sx/testa_occhi_chiusi.png",
+     "w": 272,
+     "h": 284,
+     "s": 0.87,
+     "bocca": [
+      0.34,
+      0.82
+     ]
+    },
+    "fronte_neutra": {
+     "f": "tu/sx/testa_fronte_neutra.png",
+     "w": 174,
+     "h": 204,
+     "s": 1.44,
+     "bocca": [
+      0.5,
+      0.79
+     ]
+    },
+    "fronte_triste": {
+     "f": "tu/sx/testa_fronte_triste.png",
+     "w": 171,
+     "h": 204,
+     "s": 1.44,
+     "bocca": [
+      0.5,
+      0.79
+     ]
+    },
+    "fronte_occhi_chiusi": {
+     "f": "tu/sx/testa_fronte_occhi_chiusi.png",
+     "w": 169,
+     "h": 204,
+     "s": 1.44,
+     "bocca": [
+      0.5,
+      0.79
+     ]
+    }
+   },
+   "bocche": {
+    "20": {
+     "f": "tu/sx/bocca_20.png",
+     "w": 40,
+     "h": 14,
+     "s": 0.8
+    },
+    "21": {
+     "f": "tu/sx/bocca_21.png",
+     "w": 38,
+     "h": 3,
+     "s": 0.8
+    },
+    "23": {
+     "f": "tu/sx/bocca_23.png",
+     "w": 47,
+     "h": 19,
+     "s": 0.8
+    },
+    "24": {
+     "f": "tu/sx/bocca_24.png",
+     "w": 47,
+     "h": 20,
+     "s": 0.8
+    },
+    "26": {
+     "f": "tu/sx/bocca_26.png",
+     "w": 51,
+     "h": 28,
+     "s": 0.8
+    },
+    "33": {
+     "f": "tu/sx/bocca_33.png",
+     "w": 48,
+     "h": 16,
+     "s": 0.8
+    },
+    "34": {
+     "f": "tu/sx/bocca_34.png",
+     "w": 43,
+     "h": 3,
+     "s": 0.8
+    },
+    "35": {
+     "f": "tu/sx/bocca_35.png",
+     "w": 50,
+     "h": 15,
+     "s": 0.8
+    },
+    "36": {
+     "f": "tu/sx/bocca_36.png",
+     "w": 36,
+     "h": 14,
+     "s": 0.8
+    },
+    "37": {
+     "f": "tu/sx/bocca_37.png",
+     "w": 46,
+     "h": 16,
+     "s": 0.8
+    },
+    "38": {
+     "f": "tu/sx/bocca_38.png",
+     "w": 46,
+     "h": 19,
+     "s": 0.8
+    },
+    "39": {
+     "f": "tu/sx/bocca_39.png",
+     "w": 43,
+     "h": 27,
+     "s": 0.8
+    },
+    "40": {
+     "f": "tu/sx/bocca_40.png",
+     "w": 46,
+     "h": 25,
+     "s": 0.8
+    }
+   }
+  }
+ },
+ "centro_testa": 576.5
+}

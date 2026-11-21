@@ -11,6 +11,7 @@ import { Sfondo, type Camera } from "./Sfondo";
 import { Scritte } from "./Scritte";
 import { Badge, BadgeScena, Contatore, NomeTag, Notifica, Scelta, Tabellone } from "./Cartelli";
 import { Lavagna } from "./Lavagna";
+import { Pupazzo, RIGS, scegli } from "./Pupazzo";
 import type { Espressione, Personaggio, Posa, Posizione, PropsPuntata, Scena, Vista } from "./tipi";
 
 const TERRA = 1580; // linea dei piedi nel mondo 1080x1920
@@ -229,12 +230,37 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
           const y = TERRA - 120 - i * 80, sp = ((tl * 900 + i * 230) % 1200);
           return <rect key={i} x={1180 - sp} y={y} width={160 + (i % 2) * 90} height={6} rx={3} fill="#FFFFFF" opacity={0.28} />;
         })}
-        {attori.map((a, i) => (
+        {attori.map((a, i) => RIGS[a.id] ? null : (
           <g key={i} transform={`translate(${a.xs} ${TERRA}) scale(${a.verso * (a.p.stile.altezza ?? 1)} ${a.p.stile.altezza ?? 1})`}>
             <Omino p={a.p} posa={a.posa} espr={a.espr} t={t} tl={a.tl} seme={a.seme} verso={a.verso} parlando={a.parlando}
               zoom={ch.scala * (a.p.stile.altezza ?? 1)} vista={a.vista} />
           </g>
         ))}
+      </g>
+    </svg>
+  );
+
+  // personaggi a pezzi: strato HTML con la stessa telecamera del mondo (le immagini <Img> aspettano di essere
+  // caricate prima del fotogramma, cosa che <image> dentro l'SVG non garantisce)
+  const telecamera = `translate(540px, 960px) scale(${ch.scala}) translate(${-ch.fx}px, ${-ch.fy}px)`;
+  const pupazzi = (
+    <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transformOrigin: "0 0", transform: telecamera }}>
+      {attori.map((a, i) => {
+        const rig = RIGS[a.id];
+        if (!rig) return null;
+        // forma della bocca di Rhubarb, solo per chi dice la battuta e solo dentro la battuta
+        const cue = a.id === parlante && s.bocche?.length && t >= s.bocche[0][0] && t <= s.bocche[s.bocche.length - 1][0] + 0.05
+          ? [...s.bocche].reverse().find((c) => c[0] <= t)?.[1] ?? null : null;
+        const sc = scegli(rig, a.verso, { posa: a.posa, espr: a.espr, tl: a.tl, t, vista: a.vista, seme: a.seme, parlando: a.parlando, forma: cue });
+        return <Pupazzo key={i} rig={rig} x={a.xs} terra={TERRA} alt={a.p.stile.altezza ?? 1} verso={a.verso} t={t} seme={a.seme}
+          parla={!!cue || a.parlando > 0} scelta={sc} altezzaTesta={ALTEZZA_TESTA} />;
+      })}
+    </div>
+  );
+
+  const davanti = (
+    <svg viewBox="0 0 1080 1920" width="1080" height="1920" style={{ position: "absolute", inset: 0 }}>
+      <g transform={`translate(540 960) scale(${ch.scala}) translate(${-ch.fx} ${-ch.fy})`}>
         {/* lampo d'impatto quando il ginocchio cede (la caduta parte a 0,15 s, il contatto e' a ~0,5 s) */}
         {attori.filter((a) => a.posa === "cade").map((a, i) => {
           const d = a.tl - 0.5;
@@ -273,6 +299,8 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
       ) : (<>
         <Sfondo luogo={props.luoghi[s.luogo]} cam={bgCam} />
         {mondo}
+        {pupazzi}
+        {davanti}
         <div style={{ position: "absolute", inset: 0, background: TINTE[props.luoghi[s.luogo]?.tipo ?? ""] ?? "transparent" }} />
         {notifica && <div style={{ position: "absolute", inset: 0, background: "rgba(8,10,14,.35)" }} />}
       </>)}

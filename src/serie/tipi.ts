@@ -38,6 +38,7 @@ export type Scena = {
   personaggi: Presenza[]; cartello: Cartello; suono: Suono; pezzi: Pezzo[];
   chiave_t?: number; // quando viene detta la parola chiave: le azioni partono li'
   parlante?: string | null; // chi dice la battuta tra virgolette
+  bocche?: [number, string][]; // forme della bocca di Rhubarb (A-H, X) sulla battuta, a tempo assoluto
 };
 export type Luogo = { img: string | null; sfocata?: string | null; tipo: string };
 

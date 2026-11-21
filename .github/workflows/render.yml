@@ -45,6 +45,12 @@ jobs:
           else
             python strumenti/voce.py "${{ inputs.storyboard }}"
           fi
+      - name: Bocche sulla voce (Rhubarb Lip Sync)
+        if: inputs.composizione == 'Puntata'
+        run: |
+          curl -sSL -o /tmp/rhubarb.zip https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.14.0/Rhubarb-Lip-Sync-1.14.0-Linux.zip
+          unzip -q /tmp/rhubarb.zip -d /tmp/rhubarb
+          python strumenti/bocche.py /tmp/rhubarb/Rhubarb-Lip-Sync-1.14.0-Linux/rhubarb
       - name: Render
         run: |
           start=$(date +%s)

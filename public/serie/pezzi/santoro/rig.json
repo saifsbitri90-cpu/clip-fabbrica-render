@@ -1,0 +1,313 @@
+{
+ "id": "santoro",
+ "overlap": 0.17,
+ "testa_dx": 0.04,
+ "rhubarb": {
+  "A": "21",
+  "B": "36",
+  "C": "37",
+  "D": "39",
+  "E": "26",
+  "F": "20",
+  "G": "23",
+  "H": "37",
+  "X": "34"
+ },
+ "riposo": {
+  "neutra": "21",
+  "sorpresa": "26",
+  "determinata": "34",
+  "spaventata": "23",
+  "arrabbiata": "24",
+  "dolore": "38",
+  "triste": "35",
+  "felice": "33",
+  "delusa": "35"
+ },
+ "pose": {
+  "cade": {
+   "dx": 0.08,
+   "dy": 0.04,
+   "rot": 12
+  },
+  "a_terra": {
+   "dx": 0.02,
+   "dy": 0.0,
+   "rot": 6
+  },
+  "zoppica_2": {
+   "dx": 0.03,
+   "dy": 0.0,
+   "rot": 5
+  },
+  "zoppica_3": {
+   "dx": 0.05,
+   "dy": 0.02,
+   "rot": 8
+  },
+  "zoppica_4": {
+   "dx": 0.04,
+   "dy": 0.0,
+   "rot": 6
+  }
+ },
+ "set": {
+  "dx": {
+   "corpi": {
+    "in_piedi": {
+     "f": "santoro/dx/corpo_in_piedi.png",
+     "w": 148,
+     "h": 308,
+     "s": 1.688,
+     "collo": [
+      71,
+      3
+     ]
+    },
+    "fronte": {
+     "f": "santoro/dx/corpo_fronte.png",
+     "w": 156,
+     "h": 308,
+     "s": 1.688,
+     "collo": [
+      76,
+      3
+     ]
+    },
+    "cade": {
+     "f": "santoro/dx/corpo_cade.png",
+     "w": 328,
+     "h": 308,
+     "s": 1.35,
+     "collo": [
+      158,
+      7
+     ]
+    },
+    "a_terra": {
+     "f": "santoro/dx/corpo_a_terra.png",
+     "w": 260,
+     "h": 252,
+     "s": 1.35,
+     "collo": [
+      85,
+      5
+     ]
+    },
+    "zoppica_1": {
+     "f": "santoro/dx/corpo_zoppica_1.png",
+     "w": 220,
+     "h": 352,
+     "s": 1.35,
+     "collo": [
+      116,
+      4
+     ]
+    },
+    "zoppica_2": {
+     "f": "santoro/dx/corpo_zoppica_2.png",
+     "w": 208,
+     "h": 348,
+     "s": 1.35,
+     "collo": [
+      132,
+      3
+     ]
+    },
+    "zoppica_3": {
+     "f": "santoro/dx/corpo_zoppica_3.png",
+     "w": 232,
+     "h": 360,
+     "s": 1.35,
+     "collo": [
+      164,
+      6
+     ]
+    },
+    "zoppica_4": {
+     "f": "santoro/dx/corpo_zoppica_4.png",
+     "w": 224,
+     "h": 368,
+     "s": 1.35,
+     "collo": [
+      151,
+      6
+     ]
+    },
+    "blocca": {
+     "f": "santoro/dx/corpo_blocca.png",
+     "w": 240,
+     "h": 384,
+     "s": 1.35,
+     "collo": [
+      97,
+      10
+     ]
+    },
+    "indica": {
+     "f": "santoro/dx/corpo_indica.png",
+     "w": 252,
+     "h": 380,
+     "s": 1.35,
+     "collo": [
+      89,
+      4
+     ]
+    }
+   },
+   "teste": {
+    "neutra": {
+     "f": "santoro/dx/testa_neutra.png",
+     "w": 176,
+     "h": 172,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.68,
+      0.79
+     ]
+    },
+    "arrabbiata": {
+     "f": "santoro/dx/testa_arrabbiata.png",
+     "w": 176,
+     "h": 172,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.68,
+      0.79
+     ]
+    },
+    "sorpresa": {
+     "f": "santoro/dx/testa_sorpresa.png",
+     "w": 180,
+     "h": 176,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.68,
+      0.79
+     ]
+    },
+    "spaventata": {
+     "f": "santoro/dx/testa_spaventata.png",
+     "w": 180,
+     "h": 180,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.68,
+      0.79
+     ]
+    },
+    "determinata": {
+     "f": "santoro/dx/testa_determinata.png",
+     "w": 180,
+     "h": 184,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.68,
+      0.79
+     ]
+    },
+    "occhi_chiusi": {
+     "f": "santoro/dx/testa_occhi_chiusi.png",
+     "w": 180,
+     "h": 180,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.68,
+      0.79
+     ]
+    },
+    "dolore": {
+     "f": "santoro/dx/testa_dolore.png",
+     "w": 228,
+     "h": 232,
+     "s": 1.215,
+     "bocca": [
+      0.68,
+      0.8
+     ]
+    }
+   },
+   "bocche": {
+    "20": {
+     "f": "santoro/dx/bocca_20.png",
+     "w": 38,
+     "h": 14,
+     "s": 0.84
+    },
+    "21": {
+     "f": "santoro/dx/bocca_21.png",
+     "w": 39,
+     "h": 2,
+     "s": 0.84
+    },
+    "23": {
+     "f": "santoro/dx/bocca_23.png",
+     "w": 47,
+     "h": 17,
+     "s": 0.84
+    },
+    "24": {
+     "f": "santoro/dx/bocca_24.png",
+     "w": 45,
+     "h": 21,
+     "s": 0.84
+    },
+    "26": {
+     "f": "santoro/dx/bocca_26.png",
+     "w": 50,
+     "h": 28,
+     "s": 0.84
+    },
+    "33": {
+     "f": "santoro/dx/bocca_33.png",
+     "w": 47,
+     "h": 17,
+     "s": 0.84
+    },
+    "34": {
+     "f": "santoro/dx/bocca_34.png",
+     "w": 44,
+     "h": 3,
+     "s": 0.84
+    },
+    "35": {
+     "f": "santoro/dx/bocca_35.png",
+     "w": 48,
+     "h": 13,
+     "s": 0.84
+    },
+    "36": {
+     "f": "santoro/dx/bocca_36.png",
+     "w": 45,
+     "h": 17,
+     "s": 0.84
+    },
+    "37": {
+     "f": "santoro/dx/bocca_37.png",
+     "w": 34,
+     "h": 14,
+     "s": 0.84
+    },
+    "38": {
+     "f": "santoro/dx/bocca_38.png",
+     "w": 46,
+     "h": 21,
+     "s": 0.84
+    },
+    "39": {
+     "f": "santoro/dx/bocca_39.png",
+     "w": 43,
+     "h": 27,
+     "s": 0.84
+    },
+    "40": {
+     "f": "santoro/dx/bocca_40.png",
+     "w": 50,
+     "h": 28,
+     "s": 0.84
+    }
+   }
+  }
+ },
+ "centro_testa": 601.1
+}
