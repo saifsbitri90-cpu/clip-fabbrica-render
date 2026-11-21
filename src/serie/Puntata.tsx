@@ -88,7 +88,8 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
     const gesto = GESTI.includes(f.posa) && f.vista === "tre_quarti";
     scala = (gesto ? 2.35 : 2.9) * spinta;
     const altezza = (f.p.stile.altezza ?? 1);
-    fx = f.xs + f.verso * (gesto ? 75 : 18) + deriva * 6 * k;
+    // 55 e non 75: con i personaggi a pezzi, spostandosi di piu' entrava nel bordo un ritaglio dei capelli dell'altro
+    fx = f.xs + f.verso * (gesto ? 55 : 18) + deriva * 6 * k;
     fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 48;
   }
   fx = Math.min(Math.max(fx, 540 / scala), 1080 - 540 / scala); // mai fuori dal mondo
