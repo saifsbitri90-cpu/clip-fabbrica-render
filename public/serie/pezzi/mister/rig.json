@@ -1,0 +1,206 @@
+{
+ "id": "mister",
+ "overlap": 0.17,
+ "testa_dx": 0.04,
+ "rhubarb": {
+  "A": "28",
+  "B": "29",
+  "C": "31",
+  "D": "41",
+  "E": "40",
+  "F": "30",
+  "G": "29",
+  "H": "27",
+  "X": "28"
+ },
+ "riposo": {
+  "neutra": "28",
+  "determinata": "28",
+  "arrabbiata": "43",
+  "triste": "43",
+  "delusa": "43",
+  "sorpresa": "40",
+  "felice": "42",
+  "spaventata": "30",
+  "dolore": "43"
+ },
+ "pose": {},
+ "set": {
+  "dx": {
+   "corpi": {
+    "in_piedi": {
+     "f": "mister/dx/corpo_in_piedi.png",
+     "w": 148,
+     "h": 276,
+     "s": 1.688,
+     "collo": [
+      67,
+      6
+     ]
+    },
+    "parla": {
+     "f": "mister/dx/corpo_parla.png",
+     "w": 196,
+     "h": 276,
+     "s": 1.688,
+     "collo": [
+      73,
+      7
+     ]
+    },
+    "schiena": {
+     "f": "mister/dx/corpo_schiena.png",
+     "w": 156,
+     "h": 268,
+     "s": 1.688,
+     "collo": [
+      79,
+      3
+     ]
+    }
+   },
+   "teste": {
+    "neutra": {
+     "f": "mister/dx/testa_neutra.png",
+     "w": 180,
+     "h": 176,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.64,
+      0.84
+     ]
+    },
+    "arrabbiata": {
+     "f": "mister/dx/testa_arrabbiata.png",
+     "w": 176,
+     "h": 172,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.64,
+      0.84
+     ]
+    },
+    "determinata": {
+     "f": "mister/dx/testa_determinata.png",
+     "w": 176,
+     "h": 172,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.64,
+      0.84
+     ]
+    },
+    "occhi_chiusi": {
+     "f": "mister/dx/testa_occhi_chiusi.png",
+     "w": 180,
+     "h": 176,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.64,
+      0.84
+     ]
+    },
+    "triste": {
+     "f": "mister/dx/testa_triste.png",
+     "w": 176,
+     "h": 172,
+     "s": 1.5191999999999999,
+     "bocca": [
+      0.64,
+      0.84
+     ]
+    },
+    "schiena": {
+     "f": "mister/dx/testa_schiena.png",
+     "w": 168,
+     "h": 164,
+     "s": 1.7015040000000001,
+     "bocca": [
+      0.5,
+      0.8
+     ]
+    }
+   },
+   "bocche": {
+    "27": {
+     "f": "mister/dx/bocca_27.png",
+     "w": 52,
+     "h": 22,
+     "s": 0.84
+    },
+    "28": {
+     "f": "mister/dx/bocca_28.png",
+     "w": 40,
+     "h": 7,
+     "s": 0.84
+    },
+    "29": {
+     "f": "mister/dx/bocca_29.png",
+     "w": 40,
+     "h": 16,
+     "s": 0.84
+    },
+    "30": {
+     "f": "mister/dx/bocca_30.png",
+     "w": 40,
+     "h": 15,
+     "s": 0.84
+    },
+    "31": {
+     "f": "mister/dx/bocca_31.png",
+     "w": 41,
+     "h": 15,
+     "s": 0.84
+    },
+    "32": {
+     "f": "mister/dx/bocca_32.png",
+     "w": 45,
+     "h": 16,
+     "s": 0.84
+    },
+    "40": {
+     "f": "mister/dx/bocca_40.png",
+     "w": 46,
+     "h": 25,
+     "s": 0.84
+    },
+    "41": {
+     "f": "mister/dx/bocca_41.png",
+     "w": 52,
+     "h": 23,
+     "s": 0.84
+    },
+    "42": {
+     "f": "mister/dx/bocca_42.png",
+     "w": 48,
+     "h": 16,
+     "s": 0.84
+    },
+    "43": {
+     "f": "mister/dx/bocca_43.png",
+     "w": 43,
+     "h": 10,
+     "s": 0.84
+    },
+    "44": {
+     "f": "mister/dx/bocca_44.png",
+     "w": 49,
+     "h": 18,
+     "s": 0.84
+    },
+    "45": {
+     "f": "mister/dx/bocca_45.png",
+     "w": 50,
+     "h": 15,
+     "s": 0.84
+    }
+   }
+  }
+ },
+ "testa_y": {
+  "in_piedi": 544.0,
+  "parla": 542.3,
+  "schiena": 535.6
+ },
+ "centro_testa": 544.0
+}

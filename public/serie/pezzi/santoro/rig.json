@@ -309,5 +309,17 @@
    }
   }
  },
+ "testa_y": {
+  "in_piedi": 601.1,
+  "fronte": 601.1,
+  "cade": 482.1,
+  "a_terra": 419.7,
+  "zoppica_1": 556.0,
+  "zoppica_2": 552.0,
+  "zoppica_3": 558.9,
+  "zoppica_4": 574.9,
+  "blocca": 591.1,
+  "indica": 593.8
+ },
  "centro_testa": 601.1
 }

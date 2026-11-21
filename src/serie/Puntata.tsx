@@ -11,7 +11,7 @@ import { Sfondo, type Camera } from "./Sfondo";
 import { Scritte } from "./Scritte";
 import { Badge, BadgeScena, Contatore, NomeTag, Notifica, Scelta, Tabellone } from "./Cartelli";
 import { Lavagna } from "./Lavagna";
-import { Pupazzo, RIGS, scegli } from "./Pupazzo";
+import { Pupazzo, RIGS, altezzaSedile, altezzaTestaRig, scegli, type Scelta } from "./Pupazzo";
 import type { Espressione, Personaggio, Posa, Posizione, PropsPuntata, Scena, Vista } from "./tipi";
 
 const TERRA = 1580; // linea dei piedi nel mondo 1080x1920
@@ -26,7 +26,8 @@ const TINTE: Record<string, string> = {
 type Quadro = "largo" | "medio" | "primo";
 type Ripresa = { da: number; a: number; quadro: Quadro; fuoco: number };
 type Attore = { p: Personaggio; id: string; posa: Posa; espr: Espressione; x: number; xs: number;
-  verso: 1 | -1; seme: number; tl: number; parlando: number; vista: Vista };
+  verso: 1 | -1; seme: number; tl: number; parlando: number; vista: Vista;
+  sc?: Scelta; cue?: string | null }; // sc: corpo, testa e bocca di chi ha i pezzi disegnati
 /** pose con un braccio teso in avanti: in primo piano la telecamera lascia spazio al gesto */
 const GESTI: Posa[] = ["blocca", "indica", "parla", "si_gira", "lancia"];
 
@@ -60,7 +61,11 @@ function riprese(s: Scena, ids: string[], parlante: string | null): Ripresa[] {
 const abbassa = (posa: Posa, tl: number) => (posa === "seduto" ? ABBASSA.seduto : posa === "a_terra" ? ABBASSA.terra
   : posa === "cade" ? ABBASSA.terra * Math.min(1, Math.max(0, (tl - 0.15) / 0.7)) : 0);
 /** altezza della testa nel mondo (y) per un attore, seduto o a terra compresi */
-const yTesta = (a: { p: Personaggio; posa: Posa; tl: number }) => TERRA - ALTEZZA_TESTA * (a.p.stile.altezza ?? 1) + abbassa(a.posa, a.tl);
+const yTesta = (a: { p: Personaggio; id?: string; posa: Posa; tl: number; sc?: Scelta }) => {
+  const rig = a.id ? RIGS[a.id] : undefined;
+  if (rig && a.sc) return TERRA - altezzaTestaRig(rig, a.sc.corpo, a.p.stile.altezza ?? 1, ALTEZZA_TESTA);
+  return TERRA - ALTEZZA_TESTA * (a.p.stile.altezza ?? 1) + abbassa(a.posa, a.tl);
+};
 
 function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: boolean): { ch: Camera; bg: Camera } {
   const k = interpolate(t, [r.da, r.a], [0, 1], clamp);
@@ -87,10 +92,9 @@ function camere(r: Ripresa, attori: Attore[], t: number, tl: number, corre: bool
     // Con un braccio teso la telecamera si allarga e si sposta verso il gesto: la mano resta nel quadro
     const gesto = GESTI.includes(f.posa) && f.vista === "tre_quarti";
     scala = (gesto ? 2.35 : 2.9) * spinta;
-    const altezza = (f.p.stile.altezza ?? 1);
     // 55 e non 75: con i personaggi a pezzi, spostandosi di piu' entrava nel bordo un ritaglio dei capelli dell'altro
     fx = f.xs + f.verso * (gesto ? 55 : 18) + deriva * 6 * k;
-    fy = TERRA - ALTEZZA_TESTA * altezza + abbassa(f.posa, f.tl) + 48;
+    fy = yTesta(f) + 48;
   }
   fx = Math.min(Math.max(fx, 540 / scala), 1080 - 540 / scala); // mai fuori dal mondo
   const bgScala = (1 + (scala - 1) * 0.3) * (corre ? 1.18 : 1);
@@ -111,14 +115,17 @@ function versi(s: Scena): (1 | -1)[] {
 }
 
 /** piano della panchina: sotto il bacino di chi e' seduto (anca + 30) */
-const SEDILE = TERRA + ANCA_SEDUTO + 30;
-const Panchina: React.FC<{ da: number; a: number; lw: number }> = ({ da, a, lw }) => (
+const SEDILE_OMINO = TERRA + ANCA_SEDUTO + 30;
+const Panchina: React.FC<{ da: number; a: number; lw: number; sedile?: number }> = ({ da, a, lw, sedile }) => {
+  const SEDILE = sedile ?? SEDILE_OMINO; // con i personaggi a pezzi: il sedile sotto i pantaloncini di chi e' seduto
+  return (
   <g stroke={ANTRACITE} strokeWidth={lw} strokeLinejoin="round">
     {[da + 30, a - 30, (da + a) / 2].map((x, i) => <rect key={i} x={x - 9} y={SEDILE + 20} width={18} height={TERRA - SEDILE - 20} fill="#2E3742" />)}
     <rect x={da} y={SEDILE} width={a - da} height={22} rx={8} fill="#5C6E82" />
     <rect x={da} y={SEDILE - 104} width={a - da} height={70} rx={14} fill="#4A5B6E" />
   </g>
-);
+  );
+};
 
 const Pallone: React.FC<{ x: number; y: number; giro: number }> = ({ x, y, giro }) => (
   <g transform={`translate(${x} ${y}) rotate(${giro})`}>
@@ -199,7 +206,13 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
     if (pr.posa === "blocca") xs = x + verso * 40 * Math.min(1, Math.max(0, tlA / 0.3));
     // «si gira»: di schiena (numero e nome sulla maglia) fino alla parola, poi di tre quarti verso di te
     const vista: Vista = pr.vista ?? (pr.posa === "si_gira" && tlA < 0.15 ? "schiena" : "tre_quarti");
-    return [{ p, id: pr.id, posa, espr, x, xs, verso, seme: i + s.n, tl: tlA, parlando: pr.id === parlante ? bocca : 0, vista }];
+    const parlando = pr.id === parlante ? bocca : 0;
+    const rig = RIGS[pr.id];
+    // forma della bocca di Rhubarb, solo per chi dice la battuta e solo dentro la battuta
+    const cue = rig && pr.id === parlante && s.bocche?.length && t >= s.bocche[0][0] && t <= s.bocche[s.bocche.length - 1][0] + 0.05
+      ? [...s.bocche].reverse().find((c) => c[0] <= t)?.[1] ?? null : null;
+    const sc = rig ? scegli(rig, verso, { posa, espr, tl: tlA, t, vista, seme: i + s.n, parlando, forma: cue }) : undefined;
+    return [{ p, id: pr.id, posa, espr, x, xs, verso, seme: i + s.n, tl: tlA, parlando, vista, sc, cue }];
   });
   const lista = riprese(s, attori.map((a) => a.id), parlante);
   const r = lista.find((x) => t >= x.da && t < x.a) ?? lista[lista.length - 1];
@@ -226,7 +239,12 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
   const mondo = (
     <svg viewBox="0 0 1080 1920" width="1080" height="1920" style={{ position: "absolute", inset: 0 }}>
       <g transform={`translate(540 960) scale(${ch.scala}) translate(${-ch.fx} ${-ch.fy})`}>
-        {seduti.length > 0 && <Panchina lw={spessore(ch.scala)} da={Math.min(...seduti.map((a) => a.x)) - 170} a={Math.max(...seduti.map((a) => a.x)) + 170} />}
+        {seduti.length > 0 && <Panchina lw={spessore(ch.scala)} da={Math.min(...seduti.map((a) => a.x)) - 170} a={Math.max(...seduti.map((a) => a.x)) + 170}
+          sedile={(() => {
+            const conRig = seduti.find((a) => RIGS[a.id]?.sedile);
+            const h = conRig ? altezzaSedile(RIGS[conRig.id], conRig.p.stile.altezza ?? 1, ALTEZZA_TESTA) : null;
+            return h ? TERRA - h : undefined;
+          })()} />}
         {corre && [0, 1, 2, 3, 4].map((i) => {
           const y = TERRA - 120 - i * 80, sp = ((tl * 900 + i * 230) % 1200);
           return <rect key={i} x={1180 - sp} y={y} width={160 + (i % 2) * 90} height={6} rx={3} fill="#FFFFFF" opacity={0.28} />;
@@ -248,13 +266,9 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
     <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, transformOrigin: "0 0", transform: telecamera }}>
       {attori.map((a, i) => {
         const rig = RIGS[a.id];
-        if (!rig) return null;
-        // forma della bocca di Rhubarb, solo per chi dice la battuta e solo dentro la battuta
-        const cue = a.id === parlante && s.bocche?.length && t >= s.bocche[0][0] && t <= s.bocche[s.bocche.length - 1][0] + 0.05
-          ? [...s.bocche].reverse().find((c) => c[0] <= t)?.[1] ?? null : null;
-        const sc = scegli(rig, a.verso, { posa: a.posa, espr: a.espr, tl: a.tl, t, vista: a.vista, seme: a.seme, parlando: a.parlando, forma: cue });
+        if (!rig || !a.sc) return null;
         return <Pupazzo key={i} rig={rig} x={a.xs} terra={TERRA} alt={a.p.stile.altezza ?? 1} verso={a.verso} t={t} seme={a.seme}
-          parla={!!cue || a.parlando > 0} scelta={sc} altezzaTesta={ALTEZZA_TESTA} />;
+          parla={!!a.cue || a.parlando > 0} scelta={a.sc} altezzaTesta={ALTEZZA_TESTA} />;
       })}
     </div>
   );
@@ -312,7 +326,7 @@ export const Puntata: React.FC<PropsPuntata> = (props) => {
         if (!a) return null;
         const alt = a.p.stile.altezza ?? 1;
         const hx = 540 + (a.xs + a.verso * 12 * alt - ch.fx) * ch.scala;
-        const hy = 960 + (TERRA - ALTEZZA_TESTA * alt + abbassa(a.posa, a.tl) - ch.fy) * ch.scala;
+        const hy = 960 + (yTesta(a) - ch.fy) * ch.scala;
         const k = Math.min(1, (tl - 0.4) / 0.2) * Math.min(1, (2.3 - tl) / 0.2);
         return <TuEtichetta x={hx} y={hy} r={96 * alt * ch.scala} k={k} nome={a.p.nome} numero={a.p.stile.numero} />;
       })()}

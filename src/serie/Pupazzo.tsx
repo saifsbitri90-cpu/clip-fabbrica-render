@@ -7,6 +7,7 @@ import React from "react";
 import { Img, staticFile } from "remotion";
 import rigTu from "../../public/serie/pezzi/tu/rig.json";
 import rigSantoro from "../../public/serie/pezzi/santoro/rig.json";
+import rigMister from "../../public/serie/pezzi/mister/rig.json";
 import type { Espressione, Posa, Vista } from "./tipi";
 
 type Pezzo = { f: string; w: number; h: number; s: number };
@@ -15,19 +16,30 @@ type Testa = Pezzo & { bocca: number[] };
 type Insieme = { corpi: Record<string, Corpo>; teste: Record<string, Testa>; bocche: Record<string, Pezzo> };
 type Spostamento = { dx: number; dy: number; rot: number };
 export type Rig = {
-  id: string; overlap: number; testa_dx: number; centro_testa: number;
+  id: string; overlap: number; testa_dx: number; centro_testa: number; testa_y: Record<string, number>; sedile?: number | null;
   rhubarb: Record<string, string>; riposo: Record<string, string>; pose: Record<string, Spostamento>; set: Record<string, Insieme>;
 };
 
 /** personaggi che hanno i pezzi: gli altri restano disegnati in codice (Omino) */
-export const RIGS: Record<string, Rig> = { tu: rigTu as unknown as Rig, santoro: rigSantoro as unknown as Rig };
+export const RIGS: Record<string, Rig> = {
+  tu: rigTu as unknown as Rig, santoro: rigSantoro as unknown as Rig, mister: rigMister as unknown as Rig,
+};
+
+export type Scelta = { insieme: string; corpo: string; testa: string; bocca: string };
+
+/** altezza del centro della testa sopra i piedi, in unita' della puntata, per il corpo scelto */
+export const altezzaTestaRig = (rig: Rig, corpo: string, alt: number, altezzaTesta: number) =>
+  altezzaTesta * alt * ((rig.testa_y[corpo] ?? rig.centro_testa) / rig.centro_testa);
+/** piano del sedile sotto chi e' seduto, in unita' della puntata sopra i piedi */
+export const altezzaSedile = (rig: Rig, alt: number, altezzaTesta: number) =>
+  rig.sedile ? (altezzaTesta * alt * rig.sedile) / rig.centro_testa : null;
 
 const TAU = Math.PI * 2;
 
 /** Quale corpo, quale testa e quale bocca in questo istante. tl = tempo dall'inizio dell'azione (puo' essere negativo). */
 export function scegli(rig: Rig, verso: 1 | -1, o: {
   posa: Posa; espr: Espressione; tl: number; t: number; vista: Vista; seme: number; parlando: number; forma: string | null;
-}): { insieme: string; corpo: string; testa: string; bocca: string } {
+}): Scelta {
   const insieme = verso === 1 ? (rig.set.dx ? "dx" : "sx") : (rig.set.sx ? "sx" : "dx");
   const st = rig.set[insieme];
   const c = (n: string) => (n in st.corpi ? n : "in_piedi");
@@ -65,7 +77,7 @@ export function scegli(rig: Rig, verso: 1 | -1, o: {
 /** Un personaggio a pezzi, in coordinate del mondo (piedi in x, terra). Va dentro lo strato HTML della telecamera. */
 export const Pupazzo: React.FC<{
   rig: Rig; x: number; terra: number; alt: number; verso: 1 | -1; t: number; seme: number; parla: boolean;
-  scelta: { insieme: string; corpo: string; testa: string; bocca: string }; altezzaTesta: number;
+  scelta: Scelta; altezzaTesta: number;
 }> = ({ rig, x, terra, alt, verso, t, seme, parla, scelta, altezzaTesta }) => {
   const st = rig.set[scelta.insieme];
   const f = scelta.insieme === "dx" ? 1 : -1; // verso del disegno
@@ -93,7 +105,9 @@ export const Pupazzo: React.FC<{
       <div style={{ position: "absolute", left: cx - W / 2, top: fondo - H, width: W, height: H,
         transformOrigin: "50% 100%", transform: `rotate(${rot}deg)` }}>
         <Img src={src(tt)} style={{ position: "absolute", left: 0, top: 0, width: W, height: H }} />
-        <Img src={src(b)} style={{ position: "absolute", left: tt.bocca[0] * W - bw / 2, top: tt.bocca[1] * H - bh / 2, width: bw, height: bh }} />
+        {scelta.testa !== "schiena" && (
+          <Img src={src(b)} style={{ position: "absolute", left: tt.bocca[0] * W - bw / 2, top: tt.bocca[1] * H - bh / 2, width: bw, height: bh }} />
+        )}
       </div>
     </div>
   );

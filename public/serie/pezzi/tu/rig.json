@@ -450,5 +450,12 @@
    }
   }
  },
- "centro_testa": 576.5
+ "testa_y": {
+  "seduto": 474.5,
+  "si_alza": 530.5,
+  "in_piedi": 576.5,
+  "fronte": 588.9
+ },
+ "centro_testa": 576.5,
+ "sedile": 171.0
 }
